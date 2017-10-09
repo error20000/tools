@@ -46,6 +46,13 @@ public abstract class MysqlThreadBaseDaoImpl<T> extends MysqlBaseDaoImpl<T> impl
 		service.submit(runnable);
 	}
 	
-
+	/**
+	 * 线程关闭  service
+	 */
+	public void shutdown() {
+		if(service != null){
+			service.shutdownNow();
+		}
+	}
 	
 }

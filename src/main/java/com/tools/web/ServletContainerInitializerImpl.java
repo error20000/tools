@@ -40,6 +40,9 @@ public class ServletContainerInitializerImpl implements ServletContainerInitiali
 	@Override
 	public void onStartup(Set<Class<?>> clsses, ServletContext context) throws ServletException {
 		context.log("ServletContainerInitializerImpl onStartup....");
+		//listener
+		listener(context);
+		//正事
 		if(clsses != null){
 			//解析path
 			for (Class<?> clss : clsses) {
@@ -76,6 +79,10 @@ public class ServletContainerInitializerImpl implements ServletContainerInitiali
 			//创建servlet
 			parseServlet(mapping, context);
 		}
+	}
+	
+	private void listener(ServletContext context) throws ServletException{
+		context.addListener(new ServletContextListenerImpl());
 	}
     
 	private List<RequestMappingData> parseMapping(Class<?> clss, ServletContext context) throws ServletException{

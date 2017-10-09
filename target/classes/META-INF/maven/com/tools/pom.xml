@@ -24,6 +24,7 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- servlet -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -31,12 +32,15 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- fastjson -->
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.2.38</version>
 			<scope>compile</scope>
 		</dependency>
+		
+		<!-- mysql -->
 		<dependency>
 			<groupId>c3p0</groupId>
 			<artifactId>c3p0</artifactId>
@@ -49,7 +53,8 @@
 			<version>5.1.42</version>
 			<scope>compile</scope>
 		</dependency>
-
+		
+		<!-- httpClient -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>

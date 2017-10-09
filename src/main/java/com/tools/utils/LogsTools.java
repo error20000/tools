@@ -93,4 +93,11 @@ public class LogsTools {
 		});
 	}
 	
+	/**
+	 * 线程关闭  service
+	 */
+	public static void shutdown() {
+		service.shutdownNow();
+	}
+	
 }

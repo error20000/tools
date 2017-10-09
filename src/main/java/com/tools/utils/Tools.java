@@ -1230,13 +1230,23 @@ public class Tools {
 					//根据事件类型采取不同的操作。。。。。。。  
 					callback.execute(event);
 				}  
-				key.reset();
+				boolean valid = key.reset();
+				if(!valid){
+					break;
+				}
 				//检测频率
 				Thread.sleep(refrushTime * 1000);
 			}
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * 线程关闭  service
+	 */
+	public static void shutdown() {
+		service.shutdownNow();
 	}
 	
 	/**

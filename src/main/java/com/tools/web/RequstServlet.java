@@ -68,12 +68,6 @@ public class RequstServlet extends HttpServlet {
 	}
 	
 	private void dispatch(HttpServletRequest req, HttpServletResponse resp){
-//		req.getParameterMap(); //先将参数Map从body中取出，防止参数丢失。
-		System.out.println(req.getRequestURI());
-		System.out.println(req.getContentType());
-		System.out.println("dispatch type-->"+req.getParameter("type"));
-		System.out.println("dispatch phone-->"+req.getParameter("phone"));
-		System.out.println("dispatch tcode-->"+req.getParameter("tcode"));
 		List<RequestMappingData> mapping = ServletContainerInitializerImpl.mapping;
 		String reqPath = req.getRequestURI().replace(req.getContextPath(), "");
 		String reqMethod = req.getMethod();
@@ -214,4 +208,5 @@ public class RequstServlet extends HttpServlet {
 		System.out.println("RequstServlet init...");
 	}
 
+	
 }
