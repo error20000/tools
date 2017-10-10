@@ -22,6 +22,7 @@ import ServiceImpl;
 import com.tools.annotation.Excel;
 import com.tools.annotation.API;
 import com.tools.annotation.ParamsInfo;
+import com.tools.utils.AccessTokenTools;
 import com.tools.utils.ResultKey;
 import com.tools.utils.Tips;
 import com.tools.utils.Tools;
@@ -39,31 +40,61 @@ import com.tools.web.annotation.RequestMapping;
 public class TempController{
 	
 	private TempService service = new TempServiceImpl();
+	private String pkName = "pid"; //主键字段名称
+	private String uidName = "uid"; //登录验证的uid名称
+	private String tokenName = "token"; //登录验证的token名称
 	
 	//登录验证
 	private Map<String, Object> verifyLogin(HttpServletRequest req){
-		//TODO 需要自己修改验证
+		//TODO 根据需要自己修改验证
+		String uid = Tools.isNullOrEmpty(req.getHeader(uidName)) ? Tools.getReqParamSafe(req, uidName) : req.getHeader(uidName); 
+		String token = Tools.isNullOrEmpty(req.getHeader(tokenName)) ? Tools.getReqParamSafe(req, tokenName) : req.getHeader(tokenName); 
+		Map<String, Object> vMap = Tools.verifyParam(uidName, uid, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
+		vMap = Tools.verifyParam(tokenName, token, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
+		if(!AccessTokenTools.checkToken(uid, token)){
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(ResultKey.CODE, Tips.ERROR111.getCode());
+			map.put(ResultKey.MSG, Tips.ERROR111.getDesc());
+			return map;
+		}
+//		user = (User) AccessTokenTools.getToken(uid).getValue(); //登录用户
 		
 		return null;
 	}
 	
 	//保存验证
 	private Map<String, Object> verifySave(HttpServletRequest req){
-		//TODO 需要自己修改验证
+		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
 	}
 	
 	//修改验证
 	private Map<String, Object> verifyModify(HttpServletRequest req){
-		//TODO 需要自己修改验证
+		//TODO 根据需要自己修改验证
+		String pkValue = Tools.getReqParamSafe(req, pkName);
+		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
 		
 		return verifyLogin(req);
 	}
 	
 	//删除验证
 	private Map<String, Object> verifyDelete(HttpServletRequest req){
-		//TODO 需要自己修改验证
+		//TODO 根据需要自己修改验证
+		String pkValue = Tools.getReqParamSafe(req, pkName);
+		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
 		
 		return verifyLogin(req);
 	}
@@ -71,14 +102,14 @@ public class TempController{
 	
 	//查询验证（query、list）
 	private Map<String, Object> verifyQuery(HttpServletRequest req){
-		//TODO 需要自己修改验证
+		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
 	}
 	
 	//查询验证（find、findOne）
 	private Map<String, Object> verifyFind(HttpServletRequest req){
-		//TODO 需要自己修改验证
+		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
 	}
@@ -86,7 +117,7 @@ public class TempController{
 	
 	//excel验证
 	private Map<String, Object> verifyExcel(HttpServletRequest req){
-		//TODO 需要自己修改验证
+		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
 	}
@@ -119,7 +150,7 @@ public class TempController{
 	
 	@RequestMapping(name="modify", path={"/modify"})
 	@API(name="修改", 
-		info="建议根据主键修改。", 
+		info="根据主键修改。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String modify(HttpServletRequest req, HttpServletResponse resp){
@@ -144,7 +175,7 @@ public class TempController{
 	
 	@RequestMapping(name="delete", path={"/delete"})
 	@API(name="删除", 
-		info="建议根据主键删除。", 
+		info="根据主键删除。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String delete(HttpServletRequest req, HttpServletResponse resp){

@@ -17,6 +17,7 @@ public class CacheTools {
 	private static ReentrantLock lock = new ReentrantLock(); 
 	private static boolean timerStart = false; 
 	private static AtomicInteger count = new AtomicInteger(1);
+	private static Timer timer = null;
 	private static int runTime = 2 * 3600; //定时清理时间。单位（秒）
 	private static long outTime = 2 * 3600 * 1000; //资源超时时间。单位（毫秒）
 	
@@ -65,11 +66,11 @@ public class CacheTools {
 		}
 	}
 	
-	public static void autoClear() {
+	public static final void autoClear() {
 		if(!timerStart){
 			System.out.println("start cache clear...");
 			runTime = runTime <= 0 ? 2 * 3600 * 1000 : runTime * 1000;
-			Timer timer = new Timer(true); 
+			timer = new Timer(true); 
 			timer.schedule(new TimerTask() {
 				
 				@Override
@@ -87,7 +88,7 @@ public class CacheTools {
 	
 	
 	
-	public static void setCacheObj(String key, Object value){
+	public static final void setCacheObj(String key, Object value){
 		CacheObject obj = new CacheObject(key, value);
 		long cur = System.currentTimeMillis();
 		int index = count.getAndAdd(1);
@@ -99,15 +100,15 @@ public class CacheTools {
 		initSetCacheObj(obj);
 	}
 	
-	public static CacheObject getCacheObj(String key){
+	public static final CacheObject getCacheObj(String key){
 		return initGetCacheObj(key);
 	}
 	
-	public static boolean checkTimeout(String key, String obj){
+	public static final boolean checkTimeout(String key, String obj){
 		return checkTimeout(key, obj, 2 * 3600 * 1000 );
 	}
 	
-	public static boolean checkTimeout(String key, String obj, long outTime){
+	public static final boolean checkTimeout(String key, String obj, long outTime){
 		CacheObject tmp = getCacheObj(key);
 		if(tmp == null){ 
 			return false;
@@ -121,7 +122,7 @@ public class CacheTools {
 		return true;
 	}
 	
-	public static void clearCacheObj(String key){
+	public static final void clearCacheObj(String key){
 		initClearCacheObj(key);
 	}
 	

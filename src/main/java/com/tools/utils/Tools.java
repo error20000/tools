@@ -67,8 +67,6 @@ public class Tools {
 	public static Map<String, String> phoneVcode = new ConcurrentHashMap<>(); //vcode
 	public static Map<String, Integer> phoneVcodeLimit = new ConcurrentHashMap<>(); //vcode
 	
-	public static Map<String, AccessToken> tokenMap = new ConcurrentHashMap<String, AccessToken>();
-	
 	//反射
 	private static Map<String, Field> fields = new HashMap<String ,Field>();
 	private static Map<String, Method> methods = new HashMap<String ,Method>();
@@ -93,17 +91,7 @@ public class Tools {
 		
 	}
 	
-	public static void initSaveToken(AccessToken token) {
-		tokenMap.put(token.getKey(), token);
-	}
-
-	public static AccessToken initGetToken(String key) {
-		return tokenMap.get(key);
-	}
-
-	public static AccessToken initClearToken(String key) {
-		return tokenMap.remove(key);
-	}
+	
 	
 	public static String getAuthUser() {
 		return AUTH_USER_SESSION;
@@ -509,38 +497,6 @@ public class Tools {
 	}
 	
 
-	public static String createToken(String key, Object value){
-		AccessToken token = new AccessToken(key, value);
-		token.setMillis(System.currentTimeMillis());
-		token.setToken(md5(key + token.getMillis())); //md5  key + millis
-		initSaveToken(token);
-		return token.getToken();
-	}
-	
-	public static AccessToken getToken(String key){
-		return initGetToken(key);
-	}
-	
-	public static boolean checkToken(String key, String token){
-		return checkToken(key, token, 2 * 3600 * 1000 );
-	}
-	
-	public static boolean checkToken(String key, String token, long overTime){
-		AccessToken tmp = getToken(key);
-		if(tmp == null){ 
-			return false;
-		}
-		long cur = System.currentTimeMillis();
-		if((tmp.getMillis() + overTime) < cur){
-			initClearToken(key);
-			return false;
-		}
-		return true;
-	}
-	
-	public static void clearToken(String key){
-		initClearToken(key);
-	}
 	
 	//TODO request相关
 	/**

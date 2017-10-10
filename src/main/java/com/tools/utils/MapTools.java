@@ -1,7 +1,9 @@
 package com.tools.utils;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class MapTools {
 	
@@ -37,6 +39,20 @@ public class MapTools {
         
         public Map<String, Object> build() {
         	return this.map;
+        }
+        
+        public String toURL() {
+        	StringBuilder sb = new StringBuilder();
+        	Set<String> set = this.map.keySet();
+        	Iterator<String> it = set.iterator();
+        	while (it.hasNext()) {
+				String str = it.next();
+				sb.append("&");
+				sb.append(str);
+				sb.append("=");
+				sb.append(this.map.get(str));
+			}
+        	return Tools.isNullOrEmpty(sb.toString()) ? "" : sb.toString().substring(1);
         }
 	}
 	
