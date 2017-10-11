@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSONObject;
+
 public class MapTools {
 	
 	public static final Map<String, Object> DEFAULT = new Builder().build();
@@ -12,6 +14,14 @@ public class MapTools {
 	public static MapTools.Builder custom(){
 		return new Builder();
 	}
+	
+	public static MapTools.Builder custom(Map<String, Object> map){
+		return new Builder(map);
+	}
+	
+	public static String toJSONString(Map<?, ?> map) {
+    	return JSONObject.toJSONString(map);
+    }
 
 	public static class Builder {
 
@@ -20,6 +30,11 @@ public class MapTools {
         Builder() {
             super();
             this.map =  new HashMap<String, Object>();
+        }
+        
+        Builder(Map<String, Object> map) {
+            super();
+            this.map =  map;
         }
         
         public Builder put(String key, Object value){
@@ -53,6 +68,10 @@ public class MapTools {
 				sb.append(this.map.get(str));
 			}
         	return Tools.isNullOrEmpty(sb.toString()) ? "" : sb.toString().substring(1);
+        }
+        
+        public String toJSONString() {
+        	return JSONObject.toJSONString(this.map);
         }
 	}
 	

@@ -22,7 +22,6 @@ import ServiceImpl;
 import com.tools.annotation.Excel;
 import com.tools.annotation.API;
 import com.tools.annotation.ParamsInfo;
-import com.tools.utils.AccessTokenTools;
 import com.tools.utils.ResultKey;
 import com.tools.utils.Tips;
 import com.tools.utils.Tools;
@@ -35,41 +34,25 @@ import com.tools.web.annotation.RequestMapping;
  *
  */
 @Controller
-@RequestMapping(name="TempController", path={"/{reqPrefix}/{path}"})
+@RequestMapping(name="TempController", path={"{reqPrefix}/{path}"})
 @API(info="", entity={Temp.class})
 public class TempController{
 	
 	private TempService service = new TempServiceImpl();
-	private String pkName = "pid"; //主键字段名称
-	private String uidName = "uid"; //登录验证的uid名称
-	private String tokenName = "token"; //登录验证的token名称
 	
 	//登录验证
 	private Map<String, Object> verifyLogin(HttpServletRequest req){
 		//TODO 根据需要自己修改验证
-		String uid = Tools.isNullOrEmpty(req.getHeader(uidName)) ? Tools.getReqParamSafe(req, uidName) : req.getHeader(uidName); 
-		String token = Tools.isNullOrEmpty(req.getHeader(tokenName)) ? Tools.getReqParamSafe(req, tokenName) : req.getHeader(tokenName); 
-		Map<String, Object> vMap = Tools.verifyParam(uidName, uid, 0, 0);
-		if(vMap != null){
-			return vMap;
-		}
-		vMap = Tools.verifyParam(tokenName, token, 0, 0);
-		if(vMap != null){
-			return vMap;
-		}
-		if(!AccessTokenTools.checkToken(uid, token)){
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(ResultKey.CODE, Tips.ERROR111.getCode());
-			map.put(ResultKey.MSG, Tips.ERROR111.getDesc());
-			return map;
-		}
-//		user = (User) AccessTokenTools.getToken(uid).getValue(); //登录用户
 		
 		return null;
 	}
 	
 	//保存验证
 	private Map<String, Object> verifySave(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifySave(req);
+		if(vMap != null){
+			return vMap;
+		}
 		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
@@ -77,24 +60,22 @@ public class TempController{
 	
 	//修改验证
 	private Map<String, Object> verifyModify(HttpServletRequest req){
-		//TODO 根据需要自己修改验证
-		String pkValue = Tools.getReqParamSafe(req, pkName);
-		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+		Map<String, Object> vMap = VerifyConfig.verifyModify(req);
 		if(vMap != null){
 			return vMap;
 		}
+		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
 	}
 	
 	//删除验证
 	private Map<String, Object> verifyDelete(HttpServletRequest req){
-		//TODO 根据需要自己修改验证
-		String pkValue = Tools.getReqParamSafe(req, pkName);
-		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+		Map<String, Object> vMap = VerifyConfig.verifyDelete(req);
 		if(vMap != null){
 			return vMap;
 		}
+		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
 	}
@@ -102,6 +83,10 @@ public class TempController{
 	
 	//查询验证（query、list）
 	private Map<String, Object> verifyQuery(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyQuery(req);
+		if(vMap != null){
+			return vMap;
+		}
 		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
@@ -109,23 +94,35 @@ public class TempController{
 	
 	//查询验证（find、findOne）
 	private Map<String, Object> verifyFind(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyFind(req);
+		if(vMap != null){
+			return vMap;
+		}
 		//TODO 根据需要自己修改验证
-		
+			
 		return verifyLogin(req);
 	}
 	
 	
-	//excel验证
+	//excel验证（excel、excelHeader、excelFree）
 	private Map<String, Object> verifyExcel(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyExcel(req);
+		if(vMap != null){
+			return vMap;
+		}
 		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
 	}
 	
+	
+	
+	
+	//TODO normal
 	
 	@RequestMapping(name="save", path={"/add"})
 	@API(name="新增", 
-		info="", 
+		info="默认需登录。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String save(HttpServletRequest req, HttpServletResponse resp){
@@ -150,7 +147,7 @@ public class TempController{
 	
 	@RequestMapping(name="modify", path={"/modify"})
 	@API(name="修改", 
-		info="根据主键修改。", 
+		info="默认需登录。<br/>根据主键修改。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String modify(HttpServletRequest req, HttpServletResponse resp){
@@ -175,7 +172,7 @@ public class TempController{
 	
 	@RequestMapping(name="delete", path={"/delete"})
 	@API(name="删除", 
-		info="根据主键删除。", 
+		info="默认需登录。<br/>根据主键删除。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String delete(HttpServletRequest req, HttpServletResponse resp){
@@ -200,7 +197,7 @@ public class TempController{
 	
 	@RequestMapping(name="query", path={"/query"})
 	@API(name="分页查询", 
-		info="rows：1 - 9999", 
+		info="默认需登录。<br/>rows：1 - 9999。<br/>适用于管理后台，分页查询、搜索查询。", 
 		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="keywords", info="关键字查询（未使用）")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据"),@ParamsInfo(name=ResultKey.TOTAL, info="总条数")})
 	public String query(HttpServletRequest req, HttpServletResponse resp){
@@ -242,7 +239,7 @@ public class TempController{
 	
 	@RequestMapping(name="list", path={"/list"})
 	@API(name="查询所有", 
-		info="数据多时，建议使用find。", 
+		info="默认需登录。<br/>数据多时，建议使用条件查询。<br/>适用于管理后台，查询所有。", 
 		request={}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String list(HttpServletRequest req, HttpServletResponse resp){
@@ -262,9 +259,11 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
+	//TODO find
+	
 	@RequestMapping(name="find", path={"/find"})
 	@API(name="条件查询", 
-		info="", 
+		info="适用于前端展示，根据Entity字段条件查询。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String find(HttpServletRequest req, HttpServletResponse resp){
@@ -277,6 +276,11 @@ public class TempController{
 		//执行
 		JSONObject json = new JSONObject();
 		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		if(condition == null || condition.isEmpty()){
+			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR206.getDesc(""));
+			return json.toJSONString();
+		}
 		List<Temp> res = service.findList(condition);
 		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
 		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
@@ -286,7 +290,7 @@ public class TempController{
 	
 	@RequestMapping(name="findOne", path={"/findOne"})
 	@API(name="查询一个", 
-		info="", 
+		info="适用于前端展示，根据Entity字段条件查询一个。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String findOne(HttpServletRequest req, HttpServletResponse resp){
@@ -299,6 +303,11 @@ public class TempController{
 		//执行
 		JSONObject json = new JSONObject();
 		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		if(condition == null || condition.isEmpty()){
+			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR206.getDesc(""));
+			return json.toJSONString();
+		}
 		Temp res = service.findObject(condition);
 		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
 		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
@@ -306,9 +315,50 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
+	@RequestMapping(name="findPage", path={"/findPage"})
+	@API(name="分页条件查询", 
+		info="rows：1 - 9999。<br/>适用于前端展示，分页条件查询。", 
+		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据"),@ParamsInfo(name=ResultKey.TOTAL, info="总条数")})
+	public String findPage(HttpServletRequest req, HttpServletResponse resp){
+
+		String page = Tools.getReqParamSafe(req, "page");
+		String rows = Tools.getReqParamSafe(req, "rows");
+		//验证
+		Map<String, Object> vMap = verifyFind(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		vMap = Tools.verifyParam("page", page, 1, 0, true);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		vMap = Tools.verifyParam("rows", rows, 1, 5, true); // 1 - 99999
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		//去除无用参数
+		condition.remove("page");
+		condition.remove("rows");
+		
+		int start = "0".equals(page) ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
+		List<Temp> res = service.findList(condition, start, Tools.parseInt(rows));
+		long total = service.size(condition);
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.TOTAL, total);
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
+	//TODO excel
+	
 	@RequestMapping(name="excel", path={"/excel"})
 	@API(name="导出所有", 
-		info="", 
+		info="默认需登录。<br/>适用于管理后台，导出所有。", 
 		request={}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public void excel(HttpServletRequest req, HttpServletResponse resp){
@@ -319,7 +369,7 @@ public class TempController{
 	
 	@RequestMapping(name="excelHeader", path={"/excelHeader"})
 	@API(name="获取可导项", 
-		info="", 
+		info="默认需登录。<br/>适用于管理后台，获取可导项。", 
 		request={}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String excelHeader(HttpServletRequest req, HttpServletResponse resp){
@@ -362,7 +412,7 @@ public class TempController{
 	
 	@RequestMapping(name="excelFree", path={"/excelFree"})
 	@API(name="根据可导项导出", 
-		info="", 
+		info="默认需登录。<br/>适用于管理后台，根据可导项导出。", 
 		request={@ParamsInfo(name="fields", info="可导项，逗号分隔")}, 
 		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public void excelFree(HttpServletRequest req, HttpServletResponse resp){
@@ -466,5 +516,7 @@ public class TempController{
 		}
 		
 	}
+	
+	//TODO custom
 
 }

@@ -1,0 +1,21 @@
+package PK;
+
+
+/**
+ * com.tools.auto 自动生成  CtrlConfig
+ * @author liujian
+ *
+ */
+public class CtrlConfig {
+	
+	public static String pkName = "pid"; //主键字段名称
+	public static String uidName = "uid"; //登录验证的uid名称
+	public static String tokenName = "token"; //登录验证的token名称
+	
+	public static boolean saveLogin = true; //是否需要登录验证，save
+	public static boolean modifyLogin = true; //是否需要登录验证，modify
+	public static boolean deleteLogin = true; //是否需要登录验证，delete
+	public static boolean queryLogin = true; //是否需要登录验证，query、list
+	public static boolean findLogin = true; //是否需要登录验证，find、findOne、findPage
+	public static boolean excelLogin = true; //是否需要登录验证，excel、excelHeader、excelFree
+}

@@ -3,12 +3,22 @@ package com.tools.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONArray;
+
 public class ListTools {
 	
 	public static final List<Object> DEFAULT = new Builder<Object>().build();
 	
 	public static <T> ListTools.Builder<T> custom(T type){
 		return new Builder<T>();
+	}
+	
+	public static <T> ListTools.Builder<T> custom(T type, List<T> list){
+		return new Builder<T>(list);
+	}
+	
+	public static String toJSONString(List<?> list){
+		return JSONArray.toJSONString(list);
 	}
 	
 	public static class Builder<T> {
@@ -19,6 +29,9 @@ public class ListTools {
             this.list =  new ArrayList<>();
         }
 		
+        Builder(List<T> list) {
+            this.list = list;
+        }
         
         public Builder<T> add(T e){
     		this.list.add(e);
@@ -37,6 +50,10 @@ public class ListTools {
         
         public List<T> build() {
         	return this.list;
+        }
+        
+        public String toJSONString() {
+        	return JSONArray.toJSONString(this.list);
         }
 	}
 	

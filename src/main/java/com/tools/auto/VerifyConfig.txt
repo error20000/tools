@@ -1,0 +1,102 @@
+package PK;
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tools.utils.AccessTokenTools;
+import com.tools.utils.ResultKey;
+import com.tools.utils.Tips;
+import com.tools.utils.Tools;
+
+/**
+ * com.tools.auto 自动生成  VerifyConfig
+ * @author liujian
+ *
+ */
+public class VerifyConfig {
+	
+	private static String pkName = CtrlConfig.pkName; //主键字段名称
+	private static String uidName = CtrlConfig.uidName; //登录验证的uid名称
+	private static String tokenName = CtrlConfig.tokenName; //登录验证的token名称
+	
+	//登录验证
+	public static Map<String, Object> verifyLogin(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		String uid = Tools.isNullOrEmpty(req.getHeader(uidName)) ? Tools.getReqParamSafe(req, uidName) : req.getHeader(uidName); 
+		String token = Tools.isNullOrEmpty(req.getHeader(tokenName)) ? Tools.getReqParamSafe(req, tokenName) : req.getHeader(tokenName); 
+		Map<String, Object> vMap = Tools.verifyParam(uidName, uid, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
+		vMap = Tools.verifyParam(tokenName, token, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
+		if(!AccessTokenTools.checkToken(uid, token)){
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(ResultKey.CODE, Tips.ERROR111.getCode());
+			map.put(ResultKey.MSG, Tips.ERROR111.getDesc());
+			return map;
+		}
+//		user = (User) AccessTokenTools.getToken(uid).getValue(); //登录用户
+		
+		return null;
+	}
+	
+	//保存验证
+	public static Map<String, Object> verifySave(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		
+		return CtrlConfig.saveLogin ? verifyLogin(req) : null;
+	}
+	
+	//修改验证
+	public static Map<String, Object> verifyModify(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		String pkValue = Tools.getReqParamSafe(req, pkName);
+		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
+		
+		return CtrlConfig.modifyLogin ? verifyLogin(req) : null;
+	}
+	
+	//删除验证
+	public static Map<String, Object> verifyDelete(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		String pkValue = Tools.getReqParamSafe(req, pkName);
+		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+		if(vMap != null){
+			return vMap;
+		}
+		
+		return CtrlConfig.deleteLogin ? verifyLogin(req) : null;
+	}
+
+	
+	//查询验证（query、list）
+	public static Map<String, Object> verifyQuery(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		
+		return CtrlConfig.queryLogin ? verifyLogin(req) : null;
+	}
+	
+	//查询验证（find、findOne）
+	public static Map<String, Object> verifyFind(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		
+		return CtrlConfig.findLogin ? verifyLogin(req) : null;
+	}
+	
+	
+	//excel验证（excel、excelHeader、excelFree）
+	public static Map<String, Object> verifyExcel(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		
+		return CtrlConfig.excelLogin ? verifyLogin(req) : null;
+	}
+}

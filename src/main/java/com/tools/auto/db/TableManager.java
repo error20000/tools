@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import com.alibaba.fastjson.JSON;
 import com.tools.jdbc.JdbcOperate;
 import com.tools.jdbc.c3p0.C3P0PropertiesConfig;
 import com.tools.utils.Attacks;
@@ -18,7 +17,6 @@ import com.tools.utils.Tools;
 
 public class TableManager {
 	
-	private static DataSource dataSource = null;
 	private static JdbcOperate jdbcOperate = null;
 	
 	
@@ -27,18 +25,17 @@ public class TableManager {
 		if(file.exists()){
 			new TableManager(file);
 		}else{
-			dataSource = new C3P0PropertiesConfig(dbpath).getDataSource();
+			DataSource dataSource = new C3P0PropertiesConfig(dbpath).getDataSource();
 			jdbcOperate = new JdbcOperate(dataSource);
 		}
 	}
 	
 	public TableManager(File file){
-		dataSource = new C3P0PropertiesConfig(file).getDataSource();
+		DataSource dataSource = new C3P0PropertiesConfig(file).getDataSource();
 		jdbcOperate = new JdbcOperate(dataSource);
 	}
 	
 	public TableManager(DataSource dataSource){
-		this.dataSource = dataSource;
 		jdbcOperate = new JdbcOperate(dataSource);
 	}
 	

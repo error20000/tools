@@ -31,22 +31,21 @@ import com.tools.utils.Tools;
  */
 public class AutoCreate {
 	
-	private Config config =  new Config();
-	private boolean overWrite = false;
+	private Config config =  null;
 	private TableManager manager = null;
 	private String dbPath = ""; //数据库配置
 	private String dbPathSecond = ""; //数据库从库配置
 	private String prefix = ""; //数据表前缀
 	private String separator = ""; //数据表分隔符
-	private String chartset = "utf-8";//文件字符集
-	private String reqPrefix = "api"; //请求前缀
 	
 	public AutoCreate(){
-		
+		config = new Config();
 	}
 	
 	public AutoCreate(Config config, ConfigDB dbConfig){
+		//配置
 		this.config = config;
+		//数据库配置
 		String realPath = dbConfig.getDBPath();
 		String realPath2 = dbConfig.getDBPathSecond();
 		this.dbPath = realPath.substring(realPath.lastIndexOf("/")+1);
@@ -80,9 +79,7 @@ public class AutoCreate {
 	}
 	
 	public void setPackge(String packge){
-		if(!Tools.isNullOrEmpty(packge)){
-			config = new Config(packge);
-		}
+		config.setBasePackge(packge);
 	} 
 	
 	public void setDbPath(String dbPath){
@@ -105,17 +102,16 @@ public class AutoCreate {
 	} 
 	
 	public void setChartset(String chartset){
-		this.chartset = chartset;
+		config.setChartset(chartset);
 	} 
 	
 	public void setOverWrite(boolean overWrite){
-		this.overWrite = overWrite;
+		config.setOverWrite(overWrite);
+		
 	} 
 	
 	public void setReqPrefix(String reqPrefix){
-		if(!Tools.isNullOrEmpty(reqPrefix)){
-			this.reqPrefix = reqPrefix;
-		}
+		config.setReqPrefix(reqPrefix);
 	}
 	
 	/**
@@ -123,6 +119,7 @@ public class AutoCreate {
 	 */
 	public void start(){
 		if(manager == null){
+			System.out.println("没有配置数据库地址（dbPath）。。。。。。");
 			return;
 		}
 		createBase();
@@ -135,9 +132,11 @@ public class AutoCreate {
 	 */
 	public void start(String tableName){
 		if(manager == null){
+			System.out.println("没有配置数据库地址（dbPath）。。。。。。");
 			return;
 		}
 		if(Tools.isNullOrEmpty(tableName)){
+			System.out.println("表名不能空。。。。。。");
 			return;
 		}
 		createTable(tableName);
@@ -197,7 +196,7 @@ public class AutoCreate {
 		String packName = config.getEntityPath(); //包路径
 		String eName = table.getEntityName();
 		//创建entity
-		createEntityFile(packName, table, chartset);
+		createEntityFile(packName, table, config.getChartset());
 		
 		//创建dao
 		createDao("TempDao", eName + "Dao");
@@ -217,7 +216,7 @@ public class AutoCreate {
 	 */
 	public void createDao(String tempName, String fileName){
 		String packName = config.getDaoPath(); //包路径
-		createDaoFile(packName, tempName, fileName, chartset);
+		createDaoFile(packName, tempName, fileName, config.getChartset());
 	}
 	
 	/**
@@ -227,7 +226,7 @@ public class AutoCreate {
 	 */
 	public void createDaoImpl(String tempName, String fileName){
 		String packName = config.getDaoImplPath(); //包路径
-		createDaoFile(packName, tempName, fileName, chartset);
+		createDaoFile(packName, tempName, fileName, config.getChartset());
 	}
 
 	/**
@@ -237,7 +236,7 @@ public class AutoCreate {
 	 */
 	public void createDaoUtil(String tempName, String fileName){
 		String packName = config.getDaoUtilPath(); //包路径
-		createDaoFile(packName, tempName, fileName, chartset);
+		createDaoFile(packName, tempName, fileName, config.getChartset());
 	}
 	
 	/**
@@ -246,7 +245,7 @@ public class AutoCreate {
 	 */
 	public void createDB(String fileName){
 		String packName = config.getDaoUtilPath(); //包路径
-		createDBFile(packName, fileName, chartset);
+		createDBFile(packName, fileName, config.getChartset());
 	}
 
 	/**
@@ -256,7 +255,7 @@ public class AutoCreate {
 	 */
 	public void createService(String tempName, String fileName){
 		String packName = config.getServicePath(); //包路径
-		createServiceFile(packName, tempName, fileName, chartset);
+		createServiceFile(packName, tempName, fileName, config.getChartset());
 	}
 	
 	/**
@@ -266,7 +265,7 @@ public class AutoCreate {
 	 */
 	public void createServiceImpl(String tempName, String fileName){
 		String packName = config.getServiceImplPath(); //包路径
-		createServiceFile(packName, tempName, fileName, chartset);
+		createServiceFile(packName, tempName, fileName, config.getChartset());
 	}
 
 	/**
@@ -276,7 +275,7 @@ public class AutoCreate {
 	 */
 	public void createServlet(String tempName, String fileName){
 		String packName = config.getServletPath(); //包路径
-		createServletFile(packName, tempName, fileName, chartset);
+		createServletFile(packName, tempName, fileName, config.getChartset());
 	}
 
 	/**
@@ -286,7 +285,7 @@ public class AutoCreate {
 	 */
 	public void createController(String tempName, String fileName){
 		String packName = config.getControllerPath(); //包路径
-		createControllerFile(packName, tempName, fileName, chartset);
+		createControllerFile(packName, tempName, fileName, config.getChartset());
 	}
 	
 	/**
@@ -301,6 +300,8 @@ public class AutoCreate {
 		createDaoUtil("JdbcOperateManager", "JdbcOperateManager");
 		createService("BaseService", "BaseService");
 		createServiceImpl("BaseServiceImpl", "BaseServiceImpl");
+		createController("CtrlConfig","CtrlConfig");
+		createController("VerifyConfig","VerifyConfig");
 		System.out.println("end create base file.");
 	}
 	
@@ -313,7 +314,7 @@ public class AutoCreate {
 		BufferedReader br = null;
 		File outFile = new File(outPath);
 		//如果文件已存在，并且不开启重写。结束创建。
-		if(outFile.exists() && outFile.length() != 0 && !overWrite){
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
 		System.out.println("output file... " +outPath);
@@ -437,7 +438,7 @@ public class AutoCreate {
 		BufferedReader br = null;
 		File outFile = new File(outPath);
 		//如果文件已存在，并且不开启重写。结束创建。
-		if(outFile.exists() && outFile.length() != 0 && !overWrite){
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
 		System.out.println("output file... " +outPath);
@@ -507,7 +508,7 @@ public class AutoCreate {
 		BufferedReader br = null;
 		File outFile = new File(outPath);
 		//如果文件已存在，并且不开启重写。结束创建。
-		if(outFile.exists() && outFile.length() != 0 && !overWrite){
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
 		System.out.println("output file... " +outPath);
@@ -634,7 +635,7 @@ public class AutoCreate {
 		BufferedReader br = null;
 		File outFile = new File(outPath);
 		//如果文件已存在，并且不开启重写。结束创建。
-		if(outFile.exists() && outFile.length() != 0 && !overWrite){
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
 		System.out.println("output file... " +outPath);
@@ -698,7 +699,7 @@ public class AutoCreate {
 		BufferedReader br = null;
 		File outFile = new File(outPath);
 		//如果文件已存在，并且不开启重写。结束创建。
-		if(outFile.exists() && outFile.length() != 0 && !overWrite){
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
 		System.out.println("output file... " +outPath);
@@ -731,7 +732,7 @@ public class AutoCreate {
 					line = line.replace("{path}", en.toLowerCase());
 				}
 				if(line.indexOf("{reqPrefix}") != -1){
-					line = line.replace("{reqPrefix}", reqPrefix);
+					line = line.replace("{reqPrefix}", config.getReqPrefix());
 				}
 				
 				bw.write(line); 
