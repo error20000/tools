@@ -1,15 +1,6 @@
 package com.tools.controller;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.alibaba.fastjson.JSONObject;
 import com.tools.service.AbstractBaseService;
-import com.tools.utils.Tools;
-import com.tools.web.annotation.RequestMapping;
 
 
 public abstract class AbstractBaseController<T> {
@@ -22,24 +13,481 @@ public abstract class AbstractBaseController<T> {
 	
 	public abstract void initService();
 	
-	@SuppressWarnings("unchecked")
+	/*//登录验证
+	private Map<String, Object> verifyLogin(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		
+		return null;
+	}
+	
+	//保存验证
+	private Map<String, Object> verifySave(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifySave(req);
+		if(vMap != null){
+			return vMap;
+		}
+		//TODO 根据需要自己修改验证
+		
+		return verifyLogin(req);
+	}
+	
+	//修改验证
+	private Map<String, Object> verifyModify(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyModify(req);
+		if(vMap != null){
+			return vMap;
+		}
+		//TODO 根据需要自己修改验证
+		
+		return verifyLogin(req);
+	}
+	
+	//删除验证
+	private Map<String, Object> verifyDelete(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyDelete(req);
+		if(vMap != null){
+			return vMap;
+		}
+		//TODO 根据需要自己修改验证
+		
+		return verifyLogin(req);
+	}
+
+	
+	//查询验证（query、list）
+	private Map<String, Object> verifyQuery(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyQuery(req);
+		if(vMap != null){
+			return vMap;
+		}
+		//TODO 根据需要自己修改验证
+		
+		return verifyLogin(req);
+	}
+	
+	//查询验证（find、findOne）
+	private Map<String, Object> verifyFind(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyFind(req);
+		if(vMap != null){
+			return vMap;
+		}
+		//TODO 根据需要自己修改验证
+			
+		return verifyLogin(req);
+	}
+	
+	
+	//excel验证（excel、excelHeader、excelFree）
+	private Map<String, Object> verifyExcel(HttpServletRequest req){
+		Map<String, Object> vMap = VerifyConfig.verifyExcel(req);
+		if(vMap != null){
+			return vMap;
+		}
+		//TODO 根据需要自己修改验证
+		
+		return verifyLogin(req);
+	}
+	
+	
+	
+	
+	//TODO normal
+	
 	@RequestMapping(name="save", path={"/add"})
+	@API(name="新增", 
+		info="默认需登录。<br/>适用于管理后台。", 
+		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
 	public String save(HttpServletRequest req, HttpServletResponse resp){
+		//验证
+		Map<String, Object> vMap = verifySave(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
 		JSONObject json = new JSONObject();
-		try {
-			T obj = Tools.getReqParamsToObject(req, (T) getObejctClass().newInstance());
-			int res = baseService.save(obj);
-			if(res > 0){
-				json.put("code", 1);
-				json.put("msg", "save success!");
-			}else{
-				json.put("code", 0);
-				json.put("msg", "save faild!");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		Business obj = Tools.getReqParamsToObject(req, new Business());
+		int res = service.save(obj);
+		if(res > 0){
+			json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		}else{
+			json.put(ResultKey.CODE, Tips.ERROR0.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR0.getDesc());
 		}
 		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="modify", path={"/modify"})
+	@API(name="修改", 
+		info="默认需登录。<br/>根据主键修改。<br/>适用于管理后台。", 
+		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String modify(HttpServletRequest req, HttpServletResponse resp){
+		//验证
+		Map<String, Object> vMap = verifyModify(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Business obj = Tools.getReqParamsToObject(req, new Business());
+		int res = service.modify(obj);
+		if(res > 0){
+			json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		}else{
+			json.put(ResultKey.CODE, Tips.ERROR0.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR0.getDesc());
+		}
+		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="delete", path={"/delete"})
+	@API(name="删除", 
+		info="默认需登录。<br/>根据主键删除。<br/>适用于管理后台。", 
+		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String delete(HttpServletRequest req, HttpServletResponse resp){
+		//验证
+		Map<String, Object> vMap = verifyDelete(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		int res = service.delete(condition);
+		if(res > 0){
+			json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		}else{
+			json.put(ResultKey.CODE, Tips.ERROR0.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR0.getDesc());
+		}
+		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="query", path={"/query"})
+	@API(name="分页查询", 
+		info="默认需登录。<br/>rows：1 - 9999。<br/>适用于管理后台，分页查询、搜索查询。", 
+		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="keywords", info="关键字查询（未使用）")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据"),@ParamsInfo(name=ResultKey.TOTAL, info="总条数")})
+	public String query(HttpServletRequest req, HttpServletResponse resp){
+
+		String page = Tools.getReqParamSafe(req, "page");
+		String rows = Tools.getReqParamSafe(req, "rows");
+//			String keywords = Tools.getReqParamSafe(req, "keywords");
+		//验证
+		Map<String, Object> vMap = verifyQuery(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		vMap = Tools.verifyParam("page", page, 1, 0, true);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		vMap = Tools.verifyParam("rows", rows, 1, 5, true); // 1 - 99999
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		//去除无用参数
+		condition.remove("page");
+		condition.remove("rows");
+		condition.remove("keywords");
+		//TODO 需要自己修改关键字查询（默认未使用）
+		
+		int start = "0".equals(page) ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
+		List<Business> res = service.findList(condition, start, Tools.parseInt(rows));
+		long total = service.size(condition);
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.TOTAL, total);
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="list", path={"/list"})
+	@API(name="查询所有", 
+		info="默认需登录。<br/>数据多时，建议使用条件查询。<br/>适用于管理后台，查询所有。", 
+		request={}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String list(HttpServletRequest req, HttpServletResponse resp){
+
+		//验证
+		Map<String, Object> vMap = verifyQuery(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		List<Business> res = service.findList(condition);
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
+	//TODO find
+	
+	@RequestMapping(name="find", path={"/find"})
+	@API(name="条件查询", 
+		info="适用于前端展示，根据Entity字段条件查询。", 
+		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String find(HttpServletRequest req, HttpServletResponse resp){
+
+		//验证
+		Map<String, Object> vMap = verifyFind(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		if(condition == null || condition.isEmpty()){
+			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR206.getDesc(""));
+			return json.toJSONString();
+		}
+		List<Business> res = service.findList(condition);
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="findOne", path={"/findOne"})
+	@API(name="查询一个", 
+		info="适用于前端展示，根据Entity字段条件查询一个。", 
+		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String findOne(HttpServletRequest req, HttpServletResponse resp){
+
+		//验证
+		Map<String, Object> vMap = verifyFind(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		if(condition == null || condition.isEmpty()){
+			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR206.getDesc(""));
+			return json.toJSONString();
+		}
+		Business res = service.findObject(condition);
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="findPage", path={"/findPage"})
+	@API(name="分页条件查询", 
+		info="rows：1 - 9999。<br/>适用于前端展示，分页条件查询。", 
+		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据"),@ParamsInfo(name=ResultKey.TOTAL, info="总条数")})
+	public String findPage(HttpServletRequest req, HttpServletResponse resp){
+
+		String page = Tools.getReqParamSafe(req, "page");
+		String rows = Tools.getReqParamSafe(req, "rows");
+		//验证
+		Map<String, Object> vMap = verifyFind(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		vMap = Tools.verifyParam("page", page, 1, 0, true);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		vMap = Tools.verifyParam("rows", rows, 1, 5, true); // 1 - 99999
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		//去除无用参数
+		condition.remove("page");
+		condition.remove("rows");
+		
+		int start = "0".equals(page) ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
+		List<Business> res = service.findList(condition, start, Tools.parseInt(rows));
+		long total = service.size(condition);
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.TOTAL, total);
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
+	//TODO excel
+	
+	@RequestMapping(name="excel", path={"/excel"})
+	@API(name="导出所有", 
+		info="默认需登录。<br/>适用于管理后台，导出所有。", 
+		request={}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public void excel(HttpServletRequest req, HttpServletResponse resp){
+
+		//执行
+		excelFree(req, resp);
+	}
+	
+	@RequestMapping(name="excelHeader", path={"/excelHeader"})
+	@API(name="获取可导项", 
+		info="默认需登录。<br/>适用于管理后台，获取可导项。", 
+		request={}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String excelHeader(HttpServletRequest req, HttpServletResponse resp){
+
+		//验证
+		Map<String, Object> vMap = verifyExcel(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		Business entity = new Business();
+		List<Map<String, Object>> excels = new ArrayList<Map<String, Object>>(); //获取导出字段
+		Field[] fields = Tools.getFields(entity.getClass());
+		for (Field f : fields) {
+			if(f.isAnnotationPresent(Excel.class)){
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("sort", f.getAnnotation(Excel.class).sort());
+				map.put("name", f.getAnnotation(Excel.class).name());
+				map.put("field", f.getName());
+				excels.add(map);
+			}
+		}
+		//排序
+		for (int i = 0; i < excels.size(); i++) {
+			for (int j = i; j < excels.size(); j++) {
+				if((Integer)excels.get(i).get("sort") > (Integer)excels.get(j).get("sort")){
+					Map<String, Object> tmp = excels.get(i);
+					excels.set(i, excels.get(j));
+					excels.set(j, tmp);
+				}
+			}
+		}
+		
+		JSONObject json = new JSONObject();
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.DATA, excels);
+		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="excelFree", path={"/excelFree"})
+	@API(name="根据可导项导出", 
+		info="默认需登录。<br/>适用于管理后台，根据可导项导出。", 
+		request={@ParamsInfo(name="fields", info="可导项，逗号分隔")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public void excelFree(HttpServletRequest req, HttpServletResponse resp){
+
+		//验证
+		Map<String, Object> vMap = verifyExcel(req);
+		if(vMap != null){
+			Tools.output(resp, JSONObject.toJSONString(vMap));
+			return;
+		}
+		
+		//执行
+		Business entity = new Business();
+		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		List<Business> res = service.findList(condition);
+		String name = entity.getClass().getSimpleName().toLowerCase();
+		resp.addHeader("Content-Disposition","attachment;filename="+name+".csv");
+		// response.addHeader("Content-Length", "" + JSONArray.fromObject(list).toString().getBytes().length);
+		resp.setContentType("application/octet-stream;charset=utf-8");
+		try {
+			OutputStream toClient = new BufferedOutputStream(resp.getOutputStream());
+			//header
+			List<Map<String, Object>> excels = new ArrayList<Map<String, Object>>(); //获取导出字段
+			Field[] fields = Tools.getFields(entity.getClass());
+			for (Field f : fields) {
+				if(f.isAnnotationPresent(Excel.class)){
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("sort", f.getAnnotation(Excel.class).sort());
+					map.put("name", f.getAnnotation(Excel.class).name());
+					map.put("field", f.getName());
+					excels.add(map);
+				}
+			}
+			//排序
+			for (int i = 0; i < excels.size(); i++) {
+				for (int j = i; j < excels.size(); j++) {
+					if((Integer)excels.get(i).get("sort") > (Integer)excels.get(j).get("sort")){
+						Map<String, Object> tmp = excels.get(i);
+						excels.set(i, excels.get(j));
+						excels.set(j, tmp);
+					}
+				}
+			}
+			
+			String headers = Tools.getReqParam(req, "fields"); //可选导出项。
+			
+			String head = "";
+			for (int i = 0; i < excels.size(); i++) {
+				if(Tools.isNullOrEmpty(headers)){
+					head += "," + "\"" + (excels.get(i).get("name") == null ? "" :excels.get(i).get("name").toString().replace("\"", "\"\""))+ "\"";
+				}else{
+					String[] hs = headers.replace("，", ",").split(",");
+					for (String tmp : hs) {
+						if(tmp.equals(excels.get(i).get("field"))){
+							head += "," + "\"" + (excels.get(i).get("name") == null ? "" :excels.get(i).get("name").toString().replace("\"", "\"\""))+ "\"";
+						}
+					}
+				}
+			}
+			head = Tools.isNullOrEmpty(head) ? "" : head.substring(1);
+			head += "\n";
+			toClient.write(head.getBytes("utf-8"));
+			//遍历导出数据
+			//可导项
+			if(!Tools.isNullOrEmpty(headers)){
+				String[] hs = headers.replace("，", ",").split(",");
+				for (int i = 0; i < excels.size(); i++) {
+					for (String tmp : hs) {
+						if(tmp.equals(excels.get(i).get("field"))){
+							excels.remove(i);
+							break;
+						}
+					}
+				}
+			}
+			//可导数据
+			for (Business node : res) { //遍历导出数据
+				String str = "";
+				for (int j = 0; j < excels.size(); j++) { //遍历导出字段
+					String excelField = excels.get(j).get("field").toString();
+					String getMethodName = "get" + excelField.substring(0, 1).toUpperCase() + excelField.substring(1);
+					Object value = null;
+					try{
+						Method method = Tools.findMethod(node.getClass(), getMethodName, new Class[]{});
+						value = method.invoke(node);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					//如果内容有逗号，将这个字段整体用双引号括起来；如果里面还有双引号就替换成两个双引号。
+					str += "," + "\"" + (value == null ? "" : value.toString().replace("\"", "\"\""))+ "\"";
+				}
+				str = Tools.isNullOrEmpty(str) ? "" : str.substring(1);
+				str +=  "\n";
+				toClient.write(str.getBytes("utf-8"));
+			}
+			
+			toClient.flush();
+			toClient.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	
@@ -54,6 +502,6 @@ public abstract class AbstractBaseController<T> {
 			e.printStackTrace();
 		}
 		return clss;
-	}
+	}*/
 	
 }

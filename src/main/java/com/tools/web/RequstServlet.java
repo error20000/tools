@@ -68,14 +68,14 @@ public class RequstServlet extends HttpServlet {
 	}
 	
 	private void dispatch(HttpServletRequest req, HttpServletResponse resp){
-		List<RequestMappingData> mapping = ServletContainerInitializerImpl.mapping;
+		List<RequestMappingData> mapping = ServletInitializerController.mapping;
 		String reqPath = req.getRequestURI().replace(req.getContextPath(), "");
 		String reqMethod = req.getMethod();
 
 		//allow
 		Map<String, String> content = AllowReq.getContent();
 		boolean allow = false;
-		if("true".equals(content.get(reqPath))){
+		if(content == null || content.isEmpty() || "true".equals(content.get(reqPath))){
 			allow = true;
 		}
 		if(!allow){
@@ -94,7 +94,7 @@ public class RequstServlet extends HttpServlet {
 		String str = Tools.formatDate() + "|"+ Tools.getIp(req) + "|" + reqPath;
 		Tools.fileWrite(filePath, str);		
 		
-		//allowed
+		//allowed 以允许通过
 		for (RequestMappingData mappingData : mapping) {
 			//判断 requset method
 			RequestMethod[] methods = mappingData.getReqMethod();

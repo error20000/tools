@@ -14,6 +14,9 @@ import java.lang.annotation.Target;
 public @interface API {
 	public String id() default "";
 	public String name() default "";
+	public String[] value() default {};
+	public String[] path() default {};
+	public String[] method() default {};
 	public ParamsInfo[] request() default {};
 	public ParamsInfo[] response() default {};
 	public String info() default "";

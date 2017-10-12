@@ -20,7 +20,7 @@ import com.tools.jdbc.PrimaryKey;
 import com.tools.jdbc.PrimaryKeyType;
 import com.tools.utils.Tips;
 import com.tools.web.RequestMappingData;
-import com.tools.web.ServletContainerInitializerImpl;
+import com.tools.web.ServletInitializerApi;
 import com.tools.web.annotation.Controller;
 import com.tools.web.annotation.RequestMapping;
 import com.tools.web.annotation.RequestMethod;
@@ -118,7 +118,7 @@ public class APIController{
 
 			Map<String, String> hash = new HashMap<String, String>();
 			List<RequestMappingData> mapping = new ArrayList<RequestMappingData>();
-			List<RequestMappingData> tmp = ServletContainerInitializerImpl.mapping;
+			List<RequestMappingData> tmp = ServletInitializerApi.mapping;
 			for(RequestMappingData mappingData : tmp){
 				if(hash.get(mappingData.getClss().getName()) == null){
 					mapping.add(mappingData);
@@ -133,7 +133,7 @@ public class APIController{
 			for(int i = 0; i < mapping.size(); i++){
 				RequestMappingData mappingData = mapping.get(i);
 				Class<?> clzz = mappingData.getClss();
-				if(clzz.isAnnotationPresent(API.class) && clzz.isAnnotationPresent(RequestMapping.class)){
+				if(clzz.isAnnotationPresent(API.class)){
 					API api = clzz.getAnnotation(API.class);
 					RequestMapping reqMap = clzz.getAnnotation(RequestMapping.class);
 					
@@ -271,7 +271,7 @@ public class APIController{
 
 			String className = req.getParameter("type");
 			Class<?> clzz = Class.forName(className);
-			if(clzz.isAnnotationPresent(API.class) && clzz.isAnnotationPresent(RequestMapping.class)){
+			if(clzz.isAnnotationPresent(API.class)){
 				API api = clzz.getAnnotation(API.class);
 				RequestMapping reqMap = clzz.getAnnotation(RequestMapping.class);
 				
@@ -426,7 +426,7 @@ public class APIController{
 			
 			for(int j = 0; j < methods.length; j++){
 				Method m = methods[j];
-				if(m.isAnnotationPresent(API.class) && m.isAnnotationPresent(RequestMapping.class)){
+				if(m.isAnnotationPresent(API.class)){
 					API mapi = m.getAnnotation(API.class);
 					RequestMapping mreqMap = m.getAnnotation(RequestMapping.class);
 					
