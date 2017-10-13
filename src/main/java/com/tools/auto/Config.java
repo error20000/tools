@@ -15,6 +15,7 @@ public class Config {
 	private static final String SERVICE_IMPL_PATH = "service.impl";
 	private static final String SERVLET_PATH = "servlet";
 	private static final String CONTROLLER_PATH = "controller";
+	private static final String CONFIG_PATH = "config";
 	
 	//配置
 	private String dbPropertiesName = "autodb.properties"; //数据库配置文件名
@@ -70,6 +71,10 @@ public class Config {
 
 	public String getControllerPath(){
 		return basePackge+"."+CONTROLLER_PATH;
+	}
+	
+	public String getConfigPath(){
+		return basePackge+"."+CONFIG_PATH;
 	}
 
 	

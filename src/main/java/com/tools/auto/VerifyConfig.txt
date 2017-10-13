@@ -2,10 +2,12 @@ package PK;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tools.jdbc.PrimaryKeyCondition;
 import com.tools.utils.AccessTokenTools;
 import com.tools.utils.ResultKey;
 import com.tools.utils.Tips;
@@ -18,12 +20,11 @@ import com.tools.utils.Tools;
  */
 public class VerifyConfig {
 	
-	private static String pkName = CtrlConfig.pkName; //主键字段名称
 	private static String uidName = CtrlConfig.uidName; //登录验证的uid名称
 	private static String tokenName = CtrlConfig.tokenName; //登录验证的token名称
 	
 	//登录验证
-	public static Map<String, Object> verifyLogin(HttpServletRequest req){
+	public static Map<String, Object> verifyLogin(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
 		String uid = Tools.isNullOrEmpty(req.getHeader(uidName)) ? Tools.getReqParamSafe(req, uidName) : req.getHeader(uidName); 
 		String token = Tools.isNullOrEmpty(req.getHeader(tokenName)) ? Tools.getReqParamSafe(req, tokenName) : req.getHeader(tokenName); 
@@ -47,56 +48,69 @@ public class VerifyConfig {
 	}
 	
 	//保存验证
-	public static Map<String, Object> verifySave(HttpServletRequest req){
+	public static Map<String, Object> verifySave(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
 		
-		return CtrlConfig.saveLogin ? verifyLogin(req) : null;
+		return CtrlConfig.saveLogin ? verifyLogin(req, clss) : null;
 	}
 	
 	//修改验证
-	public static Map<String, Object> verifyModify(HttpServletRequest req){
+	public static Map<String, Object> verifyModify(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
-		String pkValue = Tools.getReqParamSafe(req, pkName);
-		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
-		if(vMap != null){
-			return vMap;
+		//获取主键
+		List<PrimaryKeyCondition> pkeys = Tools.getPrimaryKeys(clss);//获取主键
+		Map<String, Object> vMap = null;
+		for (PrimaryKeyCondition pkc : pkeys) {
+			String pkName = pkc.getField();
+			String pkValue = Tools.getReqParamSafe(req, pkName);
+			vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+			if(vMap != null){
+				return vMap;
+			}
 		}
 		
-		return CtrlConfig.modifyLogin ? verifyLogin(req) : null;
+		
+		return CtrlConfig.modifyLogin ? verifyLogin(req, clss) : null;
 	}
 	
 	//删除验证
-	public static Map<String, Object> verifyDelete(HttpServletRequest req){
+	public static Map<String, Object> verifyDelete(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
-		String pkValue = Tools.getReqParamSafe(req, pkName);
-		Map<String, Object> vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
-		if(vMap != null){
-			return vMap;
+		//获取主键
+		List<PrimaryKeyCondition> pkeys = Tools.getPrimaryKeys(clss);//获取主键
+		Map<String, Object> vMap = null;
+		for (PrimaryKeyCondition pkc : pkeys) {
+			String pkName = pkc.getField();
+			String pkValue = Tools.getReqParamSafe(req, pkName);
+			vMap = Tools.verifyParam(pkName, pkValue, 0, 0);
+			if(vMap != null){
+				return vMap;
+			}
 		}
 		
-		return CtrlConfig.deleteLogin ? verifyLogin(req) : null;
+		return CtrlConfig.deleteLogin ? verifyLogin(req, clss) : null;
 	}
 
 	
 	//查询验证（query、list）
-	public static Map<String, Object> verifyQuery(HttpServletRequest req){
+	public static Map<String, Object> verifyQuery(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
 		
-		return CtrlConfig.queryLogin ? verifyLogin(req) : null;
+		return CtrlConfig.queryLogin ? verifyLogin(req, clss) : null;
 	}
 	
 	//查询验证（find、findOne）
-	public static Map<String, Object> verifyFind(HttpServletRequest req){
+	public static Map<String, Object> verifyFind(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
 		
-		return CtrlConfig.findLogin ? verifyLogin(req) : null;
+		return CtrlConfig.findLogin ? verifyLogin(req, clss) : null;
 	}
 	
 	
 	//excel验证（excel、excelHeader、excelFree）
-	public static Map<String, Object> verifyExcel(HttpServletRequest req){
+	public static Map<String, Object> verifyExcel(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
 		
-		return CtrlConfig.excelLogin ? verifyLogin(req) : null;
+		return CtrlConfig.excelLogin ? verifyLogin(req, clss) : null;
 	}
 }

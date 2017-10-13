@@ -18,10 +18,12 @@ import com.alibaba.fastjson.JSONObject;
 import T;
 import Service;
 import ServiceImpl;
+import VerifyConfig;
 
 import com.tools.annotation.Excel;
 import com.tools.annotation.API;
 import com.tools.annotation.ParamsInfo;
+import com.tools.jdbc.PrimaryKeyCondition;
 import com.tools.utils.ResultKey;
 import com.tools.utils.Tips;
 import com.tools.utils.Tools;
@@ -49,7 +51,7 @@ public class TempController{
 	
 	//保存验证
 	private Map<String, Object> verifySave(HttpServletRequest req){
-		Map<String, Object> vMap = VerifyConfig.verifySave(req);
+		Map<String, Object> vMap = VerifyConfig.verifySave(req, Temp.class);
 		if(vMap != null){
 			return vMap;
 		}
@@ -60,7 +62,7 @@ public class TempController{
 	
 	//修改验证
 	private Map<String, Object> verifyModify(HttpServletRequest req){
-		Map<String, Object> vMap = VerifyConfig.verifyModify(req);
+		Map<String, Object> vMap = VerifyConfig.verifyModify(req, Temp.class);
 		if(vMap != null){
 			return vMap;
 		}
@@ -71,7 +73,7 @@ public class TempController{
 	
 	//删除验证
 	private Map<String, Object> verifyDelete(HttpServletRequest req){
-		Map<String, Object> vMap = VerifyConfig.verifyDelete(req);
+		Map<String, Object> vMap = VerifyConfig.verifyDelete(req, Temp.class);
 		if(vMap != null){
 			return vMap;
 		}
@@ -83,7 +85,7 @@ public class TempController{
 	
 	//查询验证（query、list）
 	private Map<String, Object> verifyQuery(HttpServletRequest req){
-		Map<String, Object> vMap = VerifyConfig.verifyQuery(req);
+		Map<String, Object> vMap = VerifyConfig.verifyQuery(req, Temp.class);
 		if(vMap != null){
 			return vMap;
 		}
@@ -94,7 +96,7 @@ public class TempController{
 	
 	//查询验证（find、findOne）
 	private Map<String, Object> verifyFind(HttpServletRequest req){
-		Map<String, Object> vMap = VerifyConfig.verifyFind(req);
+		Map<String, Object> vMap = VerifyConfig.verifyFind(req, Temp.class);
 		if(vMap != null){
 			return vMap;
 		}
@@ -106,7 +108,7 @@ public class TempController{
 	
 	//excel验证（excel、excelHeader、excelFree）
 	private Map<String, Object> verifyExcel(HttpServletRequest req){
-		Map<String, Object> vMap = VerifyConfig.verifyExcel(req);
+		Map<String, Object> vMap = VerifyConfig.verifyExcel(req, Temp.class);
 		if(vMap != null){
 			return vMap;
 		}
@@ -158,8 +160,40 @@ public class TempController{
 		}
 		//执行
 		JSONObject json = new JSONObject();
-		Temp obj = Tools.getReqParamsToObject(req, new Temp());
-		int res = service.modify(obj);
+		//修改为不用传entity的全字段
+//		Temp obj = Tools.getReqParamsToObject(req, new Temp());
+//		int res = service.modify(obj);
+		
+		List<PrimaryKeyCondition> pkeys = Tools.getPrimaryKeys(Temp.class);//获取主键
+		Map<String, Object> modifyValue = Tools.getReqParamsToMap(req, Temp.class);//获取更新字段
+		Map<String, Object> modifyCondition = new HashMap<String, Object>();//查询条件
+		for (PrimaryKeyCondition pkc : pkeys) {
+			String pkn = pkc.getField();
+			String pkv = Tools.getReqParamSafe(req, pkn);
+			vMap = Tools.verifyParam(pkn, pkv, 0, 0);
+			if(vMap != null){
+				break;
+			}
+			modifyCondition.put(pkn, pkv); //添加查询条件
+			modifyValue.remove(pkn); //移除查询条件
+		}
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		
+		if(modifyCondition.isEmpty()){
+			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR206.getDesc("查询")); //缺少查询参数
+			return json.toJSONString();
+		}
+		
+		if(modifyValue.isEmpty()){
+			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
+			json.put(ResultKey.MSG, Tips.ERROR206.getDesc("修改")); //缺少修改参数
+			return json.toJSONString();
+		}
+		
+		int res = service.modify(modifyValue, modifyCondition);
 		if(res > 0){
 			json.put(ResultKey.CODE, Tips.ERROR1.getCode());
 			json.put(ResultKey.MSG, Tips.ERROR1.getDesc());

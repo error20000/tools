@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONArray;
 import com.tools.annotation.API;
 import com.tools.annotation.Excel;
 import com.tools.annotation.ParamsInfo;
@@ -119,6 +120,7 @@ public class APIController{
 			Map<String, String> hash = new HashMap<String, String>();
 			List<RequestMappingData> mapping = new ArrayList<RequestMappingData>();
 			List<RequestMappingData> tmp = ServletInitializerApi.mapping;
+			
 			for(RequestMappingData mappingData : tmp){
 				if(hash.get(mappingData.getClss().getName()) == null){
 					mapping.add(mappingData);
@@ -147,7 +149,7 @@ public class APIController{
 		   		String name = "";
 		   		if(!"".equals(api.name())){
 		   			name = api.name();
-		   		}else if(!"".equals(reqMap.name())){
+		   		}else if(reqMap != null && !"".equals(reqMap.name())){
 		   			name = reqMap.name();
 		   		}else{
 		   			name = clzz.getSimpleName();
@@ -165,12 +167,15 @@ public class APIController{
 		      out.write("</td> \r\n");
 		      out.write("   <td>");
 
-		   		String[] path = null;
-		   		if(reqMap.path().length > 0){
-		   			path = reqMap.path();
-		   		}else {
-		   			path = reqMap.value();
+		   		String[] path = api.path();
+		   		if(path.length == 0 && reqMap != null){
+		   			if(reqMap.path().length > 0){
+			   			path = reqMap.path();
+			   		}else {
+			   			path = reqMap.value();
+			   		}
 		   		}
+		   		
 		   		for(int j = 0; j < path.length; j++){
 		   			
 		      out.write("\r\n");
@@ -287,7 +292,7 @@ public class APIController{
 		   		String name = "";
 		   		if(!"".equals(api.name())){
 		   			name = api.name();
-		   		}else if(!"".equals(reqMap.name())){
+		   		}else if(reqMap != null && !"".equals(reqMap.name())){
 		   			name = reqMap.name();
 		   		}else{
 		   			name = clzz.getSimpleName();
@@ -433,7 +438,7 @@ public class APIController{
 					String mtmp = "";
 			   		if(!"".equals(mapi.name())){
 			   			mtmp = mapi.name();
-			   		}else if(!"".equals(mreqMap.name())){
+			   		}else if(mreqMap != null && !"".equals(mreqMap.name())){
 			   			mtmp = mreqMap.name();
 			   		}else{
 			   			mtmp = m.getName();
@@ -461,18 +466,22 @@ public class APIController{
 		      out.write("   <td align=\"center\">");
 
 		   		//api	path
-		   		String[] path = null;
-				if(reqMap.path().length > 0){
-					path = reqMap.path();
-				}else {
-					path = reqMap.value();
-				}
+		   		String[] path = api.path();
+		   		if(path.length == 0 && reqMap != null){
+		   			if(reqMap.path().length > 0){
+		   				path = reqMap.path();
+		   			}else {
+		   				path = reqMap.value();
+		   			}
+		   		}
 				//metnod	path
-				String[] mpath = null;
-				if(mreqMap.path().length > 0){
-					mpath = mreqMap.path();
-				}else {
-					mpath = mreqMap.value();
+				String[] mpath = mapi.path();
+				if(mpath.length == 0 && mreqMap != null){
+					if(mreqMap.path().length > 0){
+						mpath = mreqMap.path();
+					}else {
+						mpath = mreqMap.value();
+					}
 				}
 		   		for(String purl : path){
 		   			for(String curl : mpath){
@@ -489,7 +498,10 @@ public class APIController{
 		      out.write("</td>\r\n");
 		      out.write("   <td>");
 
-		   		RequestMethod[] types = mreqMap.method();
+		   		RequestMethod[] types = mapi.method();
+		   		if(types.length == 0 && mreqMap != null){
+		   			types = mreqMap.method();
+		   		}
 		   		if(types.length == 0){
 		   			
 		      out.write("\r\n");

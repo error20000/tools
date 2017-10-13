@@ -490,7 +490,7 @@ public abstract class MysqlBaseDaoImpl<T> implements MysqlBaseDao<T> {
 //			LogsTool.logSet(logPath+"/"+tableName, "【ERROR】exception: " + e.getMessage());
 //		}
 		String tableName = getTableName();
-		return modify(updateCondition, updateValue, tableName);
+		return modify(updateValue, updateCondition, tableName);
 	}
 
 	/**
@@ -1362,7 +1362,8 @@ public abstract class MysqlBaseDaoImpl<T> implements MysqlBaseDao<T> {
 	
 	//获取Class注解的PrimaryKey。
 	private List<PrimaryKeyCondition> getPrimaryKeys(Class<?> clss){
-		List<PrimaryKeyCondition> list = new ArrayList<PrimaryKeyCondition>();
+		//弃用
+		/*List<PrimaryKeyCondition> list = new ArrayList<PrimaryKeyCondition>();
 		Field[] fields = Tools.getFields(clss);
 		for (Field f : fields) {
 			if(f.isAnnotationPresent(PrimaryKey.class)){
@@ -1373,7 +1374,8 @@ public abstract class MysqlBaseDaoImpl<T> implements MysqlBaseDao<T> {
 				list.add(node);
 			}
 		}
-		return list;
+		return list;*/
+		return Tools.getPrimaryKeys(clss);
 	}
 
 	//获取泛型注解的字段别名。

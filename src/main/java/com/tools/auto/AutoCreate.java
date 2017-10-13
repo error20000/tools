@@ -289,6 +289,16 @@ public class AutoCreate {
 	}
 	
 	/**
+	 * 创建配置文件
+	 * @param tempName 模版名
+	 * @param fileName 生成文件名
+	 */
+	public void createConfig(String tempName, String fileName){
+		String packName = config.getConfigPath(); //包路径
+		createConfigFile(packName, tempName, fileName, config.getChartset());
+	}
+	
+	/**
 	 * 创建基本信息。包括：BaseDao、BaseDaoImpl、JdbcOperateManager、BaseService、BaseServiceImpl
 	 * @param tempName 模版名
 	 * @param fileName 生成文件名
@@ -300,8 +310,8 @@ public class AutoCreate {
 		createDaoUtil("JdbcOperateManager", "JdbcOperateManager");
 		createService("BaseService", "BaseService");
 		createServiceImpl("BaseServiceImpl", "BaseServiceImpl");
-		createController("CtrlConfig","CtrlConfig");
-		createController("VerifyConfig","VerifyConfig");
+		createConfig("CtrlConfig","CtrlConfig");
+		createConfig("VerifyConfig","VerifyConfig");
 		System.out.println("end create base file.");
 	}
 	
@@ -724,6 +734,8 @@ public class AutoCreate {
 					line = "import " + packName.replace("controller", "service."+en+"Service") + ";"; //import xxxx.service.xxxService
 				}else if(line.indexOf("import ServiceImpl;") != -1){
 					line = "import " + packName.replace("controller", "service.impl."+en+"ServiceImpl") + ";"; //import xxxx.service.impl.xxxServiceImpl
+				}else if(line.indexOf("import VerifyConfig;") != -1){
+					line = "import " + packName.replace("controller", "config.VerifyConfig") + ";";//import xxxx.config.VerifyConfig
 				}else{
 					line = line.replace("Temp", en);
 				}
@@ -754,6 +766,53 @@ public class AutoCreate {
 			}
 		}
 		System.out.println("end create controller file... " +packName+" "+fileName);
+	}
+	
+	
+	private void createConfigFile(String packName, String tempName, String fileName, String chartset){
+		System.out.println("start create config file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版路径
+		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
+		BufferedWriter bw = null;
+		BufferedReader br = null;
+		File outFile = new File(outPath);
+		//如果文件已存在，并且不开启重写。结束创建。
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
+			return;
+		}
+		System.out.println("output file... " +outPath);
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), chartset)); 
+			br = new BufferedReader(new InputStreamReader(in, chartset)); 
+			String line; 
+			while((line = br.readLine()) != null){ 
+				//packge
+				if(line.indexOf("package PK;") != -1){
+					line = "package " + packName + ";";
+				}
+				bw.write(line); 
+				bw.newLine(); 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try { 
+				if(br != null){
+					br.close(); 
+				}
+				if(bw != null){
+					bw.flush();
+					bw.close(); 
+				}
+			}catch (Exception e) { 
+				e.printStackTrace(); 
+			}
+		}
+		System.out.println("end create config file... " +packName+" "+fileName);
 	}
 	
 	

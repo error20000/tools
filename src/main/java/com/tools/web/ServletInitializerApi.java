@@ -54,22 +54,10 @@ public class ServletInitializerApi{
 		//获取类API
 		RequestMappingData parentData = new RequestMappingData();
 		String name = clss.getAnnotation(API.class).name();
-		String[] value = clss.getAnnotation(API.class).value();
 		String[] path = clss.getAnnotation(API.class).path();
-		String[] method = clss.getAnnotation(API.class).method();
-		//method
-		if(method.length != 0){
-			List<RequestMethod> methodTmp = new ArrayList<RequestMethod>();
-			for (String str : method) {
-				RequestMethod rm = getRequestMethod(str);
-				if(rm != null){
-					methodTmp.add(rm);
-				}
-			}
-			parentData.setReqMethod(methodTmp.toArray(new RequestMethod[methodTmp.size()]));
-		}
+		RequestMethod[] method = clss.getAnnotation(API.class).method();
+		parentData.setReqMethod(method);
 		parentData.setName(name);
-		parentData.setValue(value);
 		parentData.setPath(path);
 		parentData.setClss(clss);
 		
@@ -196,13 +184,12 @@ public class ServletInitializerApi{
 			
 		}else{
 			String name = m.getAnnotation(API.class).name();
-			String[] value = m.getAnnotation(API.class).value();
 			String[] path = m.getAnnotation(API.class).path();
-			String[] method = m.getAnnotation(API.class).method();
+			RequestMethod[] method = m.getAnnotation(API.class).method();
 			data.setName(data.getName()+"#"+name);
 			//path
 			String[] pranetPath = data.getPath().length > 0 ? data.getPath() : data.getValue();
-			String[] slefPath = path.length > 0 ? path : value;
+			String[] slefPath = path;
 			List<String> pathTmp = new ArrayList<String>();
 			for (int i = 0; i < pranetPath.length; i++) {
 				for (int j = 0; j < slefPath.length; j++) {
@@ -212,38 +199,11 @@ public class ServletInitializerApi{
 			data.setPath(pathTmp.toArray(new String[pathTmp.size()]));
 			
 			//method
-			if(method.length != 0){
-				List<RequestMethod> methodTmp = new ArrayList<RequestMethod>();
-				for (String str : method) {
-					RequestMethod rm = getRequestMethod(str);
-					if(rm != null){
-						methodTmp.add(rm);
-					}
-				}
-				data.setReqMethod(methodTmp.toArray(new RequestMethod[methodTmp.size()]));
-			}
+			data.setReqMethod(method);
 		}
 		
 		return data;
 	}
 	
-	private RequestMethod getRequestMethod(String str){
-		if(str.toLowerCase().equals(RequestMethod.DELETE)){
-			return RequestMethod.DELETE;
-		}else if(str.toLowerCase().equals(RequestMethod.PATCH)){
-			return RequestMethod.PATCH;
-		}else if(str.toLowerCase().equals(RequestMethod.POST)){
-			return RequestMethod.POST;
-		}else if(str.toLowerCase().equals(RequestMethod.PUT)){
-			return RequestMethod.PUT;
-		}else if(str.toLowerCase().equals(RequestMethod.OPTIONS)){
-			return RequestMethod.OPTIONS;
-		}else if(str.toLowerCase().equals(RequestMethod.GET)){
-			return RequestMethod.GET;
-		}else if(str.toLowerCase().equals(RequestMethod.TRACE)){
-			return RequestMethod.TRACE;
-		}
-		return null;
-	}
 
 }

@@ -8,7 +8,6 @@ package PK;
  */
 public class CtrlConfig {
 	
-	public static String pkName = "pid"; //主键字段名称
 	public static String uidName = "uid"; //登录验证的uid名称
 	public static String tokenName = "token"; //登录验证的token名称
 	

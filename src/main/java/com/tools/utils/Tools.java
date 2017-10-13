@@ -46,6 +46,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tools.jdbc.PrimaryKey;
+import com.tools.jdbc.PrimaryKeyCondition;
+
 
 
 public class Tools {
@@ -72,7 +75,8 @@ public class Tools {
 	private static Map<String, Method> methods = new HashMap<String ,Method>();
 	private static Map<String, Field[]> fieldArrays = new HashMap<String ,Field[]>();
 	private static Map<String, Method[]> methodArrays = new HashMap<String ,Method[]>();
-	
+	private static Map<String, List<PrimaryKeyCondition>> pkArrays = new HashMap<String ,List<PrimaryKeyCondition>>();
+
 	//写文件线程池
 	private static ExecutorService service = Executors.newFixedThreadPool(10);
 	private static Lock lock = new ReentrantLock();
@@ -1588,6 +1592,33 @@ public class Tools {
 			return clsses[index];
 		}
 		return null;
+	}
+	
+	/**
+	 * 获取Entity类注解的PrimaryKey。
+	 * @param clss
+	 * @return
+	 */
+	public static  List<PrimaryKeyCondition> getPrimaryKeys(Class<?> clss){
+		String mark = clss.getCanonicalName();
+		List<PrimaryKeyCondition> list = null;
+		if(pkArrays.containsKey(mark)){
+			list = pkArrays.get(mark);
+		}else {
+			list = new ArrayList<PrimaryKeyCondition>();
+			Field[] fields = getFields(clss);
+			for (Field f : fields) {
+				if(f.isAnnotationPresent(PrimaryKey.class)){
+					PrimaryKeyCondition node = new PrimaryKeyCondition();
+					node.setField(f.getName());
+					node.setType(f.getType().getSimpleName());
+					node.setKeyType(f.getAnnotation(PrimaryKey.class).type());
+					list.add(node);
+				}
+			}
+			pkArrays.put(mark, list);
+		}
+		return list;
 	}
 
 	public static void main(String[] args) {
