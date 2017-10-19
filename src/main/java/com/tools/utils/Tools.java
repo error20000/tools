@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tools.annotation.Excel;
 import com.tools.jdbc.PrimaryKey;
 import com.tools.jdbc.PrimaryKeyCondition;
 
@@ -197,7 +198,16 @@ public class Tools {
 	 * @return 返回当前日期，格式：initDateFormatStr
 	 */
 	public static String formatDate(){
-		return formatDate(null);
+		return formatDate(initDateFormatStr);
+	}
+	
+	/**
+	 * 格式化日期
+	 * @param str 日期格式
+	 * @return 返回当前日期.
+	 */
+	public static String formatDate(String str){
+		return formatDate(null, str);
 	}
 	
 	/**
@@ -751,7 +761,7 @@ public class Tools {
 		}
 		while (enums.hasMoreElements()) {
 			String name = enums.nextElement();
-			Field[] fields = clss.getDeclaredFields();
+			Field[] fields = getFields(clss); //clss.getDeclaredFields();
 			for (Field f : fields) {
 				if(name.equals(f.getName())){
 					Object value = null;
@@ -797,23 +807,10 @@ public class Tools {
 	 */
 	public static <T> T getReqParamsToObject(HttpServletRequest req, T obj){
 		Class<?> clss = obj.getClass();
-		Field[] fields = clss.getDeclaredFields();
-		Method[] methods = clss.getDeclaredMethods();
+		Field[] fields = getFields(clss); //clss.getDeclaredFields();
+		Method[] methods = getMethods(clss); //clss.getDeclaredMethods();
 		for (Field f : fields) {
 			Object value = null;
-			//自动填充
-			if("date".equals(f.getName())){
-				value = formatDate();
-				for (Method m : methods) {
-					if(m.getName().indexOf("set") != -1 && m.getName().substring(3).equalsIgnoreCase(f.getName())){
-						try {
-							m.invoke(obj, value);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
 			Enumeration<String> enums = req.getParameterNames();
 			if(enums == null || !enums.hasMoreElements()){
 				enums = req.getAttributeNames();
@@ -864,14 +861,78 @@ public class Tools {
 	}
 	
 	/**
+	 * 填充日期
+	 * @param fillCondition  格式 “,xxxx,xxxx,xxxx,”
+	 * @param obj 对象
+	 * @return obj
+	 */
+	public static <T> T fillDate(String fillCondition, T obj){
+		Field[] fields = getFields(obj.getClass());
+		Method[] methods = getMethods(obj.getClass());
+		for (Field f : fields) {
+			if(f.isAnnotationPresent(Excel.class)){
+				String name = f.getAnnotation(Excel.class).name();
+				String value = null;
+				if(fillCondition.indexOf(","+name+",") != -1 ){ //直接匹配  如：日期
+					value = Tools.formatDate();
+				//匹配附带格式,以空格分隔  如：日期   yyyy-MM-dd
+				}else if( name.indexOf(" ") != -1 && fillCondition.indexOf(","+name.substring(0, name.indexOf(" ")+1)+",") != -1){
+					value =Tools.formatDate(name.substring(name.indexOf(" ")+1).trim());
+				}
+				if(value != null){
+					for (Method m : methods) {
+						if(m.getName().startsWith("set") && m.getName().substring(3).equalsIgnoreCase(f.getName())){
+							try {
+								m.invoke(obj, value);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+			
+		}
+		return obj;
+	}
+	
+	/**
+	 * 填充日期
+	 * @param fillCondition  格式 “,xxxx,xxxx,xxxx,”
+	 * @param obj 对象
+	 * @return obj
+	 */
+	public static Map<String, Object> fillDate(String fillCondition, Class<?> clss){
+		Field[] fields = getFields(clss);
+		Map<String, Object> map = new HashMap<String, Object>();
+		for (Field f : fields) {
+			if(f.isAnnotationPresent(Excel.class)){
+				String name = f.getAnnotation(Excel.class).name();
+				String value = null;
+				if(fillCondition.indexOf(","+name+",") != -1 ){ //直接匹配  如：日期
+					value = Tools.formatDate();
+				//匹配附带格式,以空格分隔  如：日期   yyyy-MM-dd
+				}else if( name.indexOf(" ") != -1 && fillCondition.indexOf(","+name.substring(0, name.indexOf(" ")+1)+",") != -1){
+					value =Tools.formatDate(name.substring(name.indexOf(" ")+1).trim());
+				}
+				if(value != null){
+					map.put(f.getName(), value);
+				}
+			}
+			
+		}
+		return map;
+	}
+	
+	/**
 	 * 对象转map
 	 * @param obj	对象
 	 * @return	Map
 	 */
 	public static Map<String, Object> parseObjectToMap(Object object){
 		Map<String, Object> map = new HashMap<String, Object>();
-		Field[] fields = object.getClass().getDeclaredFields();
-		Method[] methods = object.getClass().getDeclaredMethods();  
+		Field[] fields = getFields(object.getClass()); //object.getClass().getDeclaredFields();
+		Method[] methods = getMethods(object.getClass()); //object.getClass().getDeclaredMethods();  
 		for (Field f : fields) {
 			String key = f.getName();
 			Object value = null;

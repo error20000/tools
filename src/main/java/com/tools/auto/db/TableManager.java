@@ -139,6 +139,15 @@ public class TableManager {
 		case "bigint":
 			str = "long";
 			break;
+		case "float":
+			str = "float";
+			break;
+		case "double":
+			str = "double";
+			break;
+		case "decimal":
+			str = "float";
+			break;
 		default:
 			str = "String";
 			break;

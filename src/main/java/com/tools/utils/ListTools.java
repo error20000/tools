@@ -9,11 +9,11 @@ public class ListTools {
 	
 	public static final List<Object> DEFAULT = new Builder<Object>().build();
 	
-	public static <T> ListTools.Builder<T> custom(T type){
+	public static <T> ListTools.Builder<T> custom(Class<T> type){
 		return new Builder<T>();
 	}
 	
-	public static <T> ListTools.Builder<T> custom(T type, List<T> list){
+	public static <T> ListTools.Builder<T> custom(List<T> list){
 		return new Builder<T>(list);
 	}
 	
@@ -58,8 +58,9 @@ public class ListTools {
 	}
 	
 	public static void main(String[] args) {
-		List<String> list = ListTools.custom(new String()).add("test1").add("test2").add("test3").add("test4").build();
-		List<String> list2 = ListTools.custom(new String()).build();
+		List<String> list = ListTools.custom(String.class).add("test1").add("test2").add("test3").add("test4").build();
+		List<String> list2 = ListTools.custom(String.class).build();
+		List<String> list5 = ListTools.custom(list).add("test5").build();
 		ListTools.DEFAULT.add("2");
 		List<Object> list3 = ListTools.DEFAULT;
 		list3.add("3");
@@ -68,5 +69,6 @@ public class ListTools {
 		System.out.println(list2.toString());
 		System.out.println(list3.toString());
 		System.out.println(list4.toString());
+		System.out.println(list5.toString());
 	}
 }
