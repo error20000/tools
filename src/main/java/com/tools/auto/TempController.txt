@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 import T;
 import Service;
 import ServiceImpl;
+import CtrlConfig;
 import VerifyConfig;
 
 import com.tools.annotation.Excel;
@@ -42,8 +43,15 @@ public class TempController{
 	
 	private TempService service = new TempServiceImpl();
 	
-	//登录验证
+	//登录验证（私有）
 	private Map<String, Object> verifyLogin(HttpServletRequest req){
+		//TODO 根据需要自己修改验证
+		
+		return null;
+	}
+	
+	//sign验证（私有）
+	private Map<String, Object> verifySign(HttpServletRequest req){
 		//TODO 根据需要自己修改验证
 		
 		return null;
@@ -52,6 +60,11 @@ public class TempController{
 	//保存验证
 	private Map<String, Object> verifySave(HttpServletRequest req){
 		Map<String, Object> vMap = VerifyConfig.verifySave(req, Temp.class);
+		if(vMap != null){
+			return vMap;
+		}
+		//sign
+		vMap = verifySign(req);
 		if(vMap != null){
 			return vMap;
 		}
@@ -66,6 +79,11 @@ public class TempController{
 		if(vMap != null){
 			return vMap;
 		}
+		//sign
+		vMap = verifySign(req);
+		if(vMap != null){
+			return vMap;
+		}
 		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
@@ -74,6 +92,11 @@ public class TempController{
 	//删除验证
 	private Map<String, Object> verifyDelete(HttpServletRequest req){
 		Map<String, Object> vMap = VerifyConfig.verifyDelete(req, Temp.class);
+		if(vMap != null){
+			return vMap;
+		}
+		//sign
+		vMap = verifySign(req);
 		if(vMap != null){
 			return vMap;
 		}
@@ -89,6 +112,11 @@ public class TempController{
 		if(vMap != null){
 			return vMap;
 		}
+		//sign
+		vMap = verifySign(req);
+		if(vMap != null){
+			return vMap;
+		}
 		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
@@ -97,6 +125,11 @@ public class TempController{
 	//查询验证（find、findOne）
 	private Map<String, Object> verifyFind(HttpServletRequest req){
 		Map<String, Object> vMap = VerifyConfig.verifyFind(req, Temp.class);
+		if(vMap != null){
+			return vMap;
+		}
+		//sign
+		vMap = verifySign(req);
 		if(vMap != null){
 			return vMap;
 		}
@@ -112,6 +145,11 @@ public class TempController{
 		if(vMap != null){
 			return vMap;
 		}
+		//sign
+		vMap = verifySign(req);
+		if(vMap != null){
+			return vMap;
+		}
 		//TODO 根据需要自己修改验证
 		
 		return verifyLogin(req);
@@ -122,7 +160,7 @@ public class TempController{
 	
 	//TODO normal
 	
-	@RequestMapping(name="save", path={"/add"})
+	@RequestMapping(name="save", path={"/base/add"})
 	@API(name="新增", 
 		info="默认需登录。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -148,7 +186,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="modify", path={"/modify"})
+	@RequestMapping(name="modify", path={"/base/modify"})
 	@API(name="修改", 
 		info="默认需登录。<br/>根据主键修改。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -194,7 +232,7 @@ public class TempController{
 			json.put(ResultKey.MSG, Tips.ERROR206.getDesc("修改")); //缺少修改参数
 			return json.toJSONString();
 		}
-		Map<String, Object> dates = Tools.fillDate(CtrlConfig.fillDateForModify, Temp.class) //日期填充
+		Map<String, Object> dates = Tools.fillDate(CtrlConfig.fillDateForModify, Temp.class); //日期填充
 		if(!dates.isEmpty()){
 			modifyValue.putAll(dates);
 		}
@@ -210,7 +248,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="delete", path={"/delete"})
+	@RequestMapping(name="delete", path={"/base/delete"})
 	@API(name="删除", 
 		info="默认需登录。<br/>根据主键删除。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -223,7 +261,7 @@ public class TempController{
 		}
 		//执行
 		JSONObject json = new JSONObject();
-		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		int res = service.delete(condition);
 		if(res > 0){
 			json.put(ResultKey.CODE, Tips.ERROR1.getCode());
@@ -235,7 +273,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="query", path={"/query"})
+	@RequestMapping(name="query", path={"/base/query"})
 	@API(name="分页查询", 
 		info="默认需登录。<br/>rows：1 - 9999。<br/>适用于管理后台，分页查询、搜索查询。", 
 		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="keywords", info="关键字查询（未使用）")}, 
@@ -260,11 +298,7 @@ public class TempController{
 		}
 		//执行
 		JSONObject json = new JSONObject();
-		Map<String, Object> condition = Tools.getReqParamsToMap(req);
-		//去除无用参数
-		condition.remove("page");
-		condition.remove("rows");
-		condition.remove("keywords");
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		//TODO 需要自己修改关键字查询（默认未使用）
 		
 		int start = "0".equals(page) ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
@@ -277,7 +311,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="list", path={"/list"})
+	@RequestMapping(name="list", path={"/base/list"})
 	@API(name="查询所有", 
 		info="默认需登录。<br/>数据多时，建议使用条件查询。<br/>适用于管理后台，查询所有。", 
 		request={}, 
@@ -291,7 +325,7 @@ public class TempController{
 		}
 		//执行
 		JSONObject json = new JSONObject();
-		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		List<Temp> res = service.findList(condition);
 		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
 		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
@@ -301,7 +335,7 @@ public class TempController{
 	
 	//TODO find
 	
-	@RequestMapping(name="find", path={"/find"})
+	@RequestMapping(name="find", path={"/base/find"})
 	@API(name="条件查询", 
 		info="适用于前端展示，根据Entity字段条件查询。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -315,7 +349,7 @@ public class TempController{
 		}
 		//执行
 		JSONObject json = new JSONObject();
-		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		if(condition == null || condition.isEmpty()){
 			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
 			json.put(ResultKey.MSG, Tips.ERROR206.getDesc(""));
@@ -328,7 +362,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="findOne", path={"/findOne"})
+	@RequestMapping(name="findOne", path={"/base/findOne"})
 	@API(name="查询一个", 
 		info="适用于前端展示，根据Entity字段条件查询一个。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -342,7 +376,7 @@ public class TempController{
 		}
 		//执行
 		JSONObject json = new JSONObject();
-		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		if(condition == null || condition.isEmpty()){
 			json.put(ResultKey.CODE, Tips.ERROR206.getCode());
 			json.put(ResultKey.MSG, Tips.ERROR206.getDesc(""));
@@ -355,7 +389,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="findPage", path={"/findPage"})
+	@RequestMapping(name="findPage", path={"/base/findPage"})
 	@API(name="分页条件查询", 
 		info="rows：1 - 9999。<br/>适用于前端展示，分页条件查询。", 
 		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -379,10 +413,7 @@ public class TempController{
 		}
 		//执行
 		JSONObject json = new JSONObject();
-		Map<String, Object> condition = Tools.getReqParamsToMap(req);
-		//去除无用参数
-		condition.remove("page");
-		condition.remove("rows");
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		
 		int start = "0".equals(page) ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
 		List<Temp> res = service.findList(condition, start, Tools.parseInt(rows));
@@ -394,9 +425,30 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
+	@RequestMapping(name="findAll", path={"/base/findAll"})
+	@API(name="查询所有", 
+		info="适用于前端展示。", 
+		request={}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String findAll(HttpServletRequest req, HttpServletResponse resp){
+
+		//验证
+		Map<String, Object> vMap = verifyFind(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		List<Temp> res = service.findList();
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
 	//TODO excel
 	
-	@RequestMapping(name="excel", path={"/excel"})
+	@RequestMapping(name="excel", path={"/base/excel"})
 	@API(name="导出所有", 
 		info="默认需登录。<br/>适用于管理后台，导出所有。", 
 		request={}, 
@@ -407,7 +459,7 @@ public class TempController{
 		excelFree(req, resp);
 	}
 	
-	@RequestMapping(name="excelHeader", path={"/excelHeader"})
+	@RequestMapping(name="excelHeader", path={"/base/excelHeader"})
 	@API(name="获取可导项", 
 		info="默认需登录。<br/>适用于管理后台，获取可导项。", 
 		request={}, 
@@ -450,7 +502,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="excelFree", path={"/excelFree"})
+	@RequestMapping(name="excelFree", path={"/base/excelFree"})
 	@API(name="根据可导项导出", 
 		info="默认需登录。<br/>适用于管理后台，根据可导项导出。", 
 		request={@ParamsInfo(name="fields", info="可导项，逗号分隔")}, 
@@ -466,7 +518,7 @@ public class TempController{
 		
 		//执行
 		Temp entity = new Temp();
-		Map<String, Object> condition = Tools.getReqParamsToMap(req);
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		List<Temp> res = service.findList(condition);
 		String name = entity.getClass().getSimpleName().toLowerCase();
 		resp.addHeader("Content-Disposition","attachment;filename="+name+".csv");
@@ -497,7 +549,7 @@ public class TempController{
 				}
 			}
 			
-			String headers = Tools.getReqParam(req, "fields"); //可选导出项。
+			String headers = Tools.getReqParamSafe(req, "fields"); //可选导出项。
 			
 			String head = "";
 			for (int i = 0; i < excels.size(); i++) {

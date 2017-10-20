@@ -153,7 +153,7 @@ public class RequstServlet extends HttpServlet {
 						res = mappingData.getMethod().invoke(mappingData.getClss().newInstance(), params);
 					}
 					if(res != null){
-						Tools.output(req, resp, (String) res, true);
+						Tools.output(req, resp, (String) res, false);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

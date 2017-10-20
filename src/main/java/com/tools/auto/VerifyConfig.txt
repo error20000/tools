@@ -23,8 +23,8 @@ public class VerifyConfig {
 	private static String uidName = CtrlConfig.uidName; //登录验证的uid名称
 	private static String tokenName = CtrlConfig.tokenName; //登录验证的token名称
 	
-	//登录验证
-	public static Map<String, Object> verifyLogin(HttpServletRequest req, Class<?> clss){
+	//登录验证（公有）
+	private static Map<String, Object> verifyLogin(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
 		String uid = Tools.isNullOrEmpty(req.getHeader(uidName)) ? Tools.getReqParamSafe(req, uidName) : req.getHeader(uidName); 
 		String token = Tools.isNullOrEmpty(req.getHeader(tokenName)) ? Tools.getReqParamSafe(req, tokenName) : req.getHeader(tokenName); 
@@ -47,9 +47,24 @@ public class VerifyConfig {
 		return null;
 	}
 	
+	//sign验证（公有）
+	private static Map<String, Object> verifySign(HttpServletRequest req, Class<?> clss){
+		//TODO 根据需要自己修改验证
+		
+		return null;
+	}
+	
 	//保存验证
 	public static Map<String, Object> verifySave(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
+		Map<String, Object> vMap = null;
+		//sign
+		if(CtrlConfig.saveSign){
+			vMap = verifySign(req, clss);
+			if(vMap != null){
+				return vMap;
+			}
+		}
 		
 		return CtrlConfig.saveLogin ? verifyLogin(req, clss) : null;
 	}
@@ -68,7 +83,13 @@ public class VerifyConfig {
 				return vMap;
 			}
 		}
-		
+		//sign
+		if(CtrlConfig.modifySign){
+			vMap = verifySign(req, clss);
+			if(vMap != null){
+				return vMap;
+			}
+		}
 		
 		return CtrlConfig.modifyLogin ? verifyLogin(req, clss) : null;
 	}
@@ -87,6 +108,13 @@ public class VerifyConfig {
 				return vMap;
 			}
 		}
+		//sign
+		if(CtrlConfig.deleteSign){
+			vMap = verifySign(req, clss);
+			if(vMap != null){
+				return vMap;
+			}
+		}
 		
 		return CtrlConfig.deleteLogin ? verifyLogin(req, clss) : null;
 	}
@@ -95,6 +123,14 @@ public class VerifyConfig {
 	//查询验证（query、list）
 	public static Map<String, Object> verifyQuery(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
+		Map<String, Object> vMap = null;
+		//sign
+		if(CtrlConfig.querySign){
+			vMap = verifySign(req, clss);
+			if(vMap != null){
+				return vMap;
+			}
+		}
 		
 		return CtrlConfig.queryLogin ? verifyLogin(req, clss) : null;
 	}
@@ -102,6 +138,14 @@ public class VerifyConfig {
 	//查询验证（find、findOne）
 	public static Map<String, Object> verifyFind(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
+		Map<String, Object> vMap = null;
+		//sign
+		if(CtrlConfig.findSign){
+			vMap = verifySign(req, clss);
+			if(vMap != null){
+				return vMap;
+			}
+		}
 		
 		return CtrlConfig.findLogin ? verifyLogin(req, clss) : null;
 	}
@@ -110,7 +154,16 @@ public class VerifyConfig {
 	//excel验证（excel、excelHeader、excelFree）
 	public static Map<String, Object> verifyExcel(HttpServletRequest req, Class<?> clss){
 		//TODO 根据需要自己修改验证
+		Map<String, Object> vMap = null;
+		//sign
+		if(CtrlConfig.exceSign){
+			vMap = verifySign(req, clss);
+			if(vMap != null){
+				return vMap;
+			}
+		}
 		
 		return CtrlConfig.excelLogin ? verifyLogin(req, clss) : null;
 	}
+	
 }

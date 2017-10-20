@@ -734,6 +734,8 @@ public class AutoCreate {
 					line = "import " + packName.replace("controller", "service."+en+"Service") + ";"; //import xxxx.service.xxxService
 				}else if(line.indexOf("import ServiceImpl;") != -1){
 					line = "import " + packName.replace("controller", "service.impl."+en+"ServiceImpl") + ";"; //import xxxx.service.impl.xxxServiceImpl
+				}else if(line.indexOf("import CtrlConfig;") != -1){
+					line = "import " + packName.replace("controller", "config.CtrlConfig") + ";";//import xxxx.config.CtrlConfig
 				}else if(line.indexOf("import VerifyConfig;") != -1){
 					line = "import " + packName.replace("controller", "config.VerifyConfig") + ";";//import xxxx.config.VerifyConfig
 				}else{

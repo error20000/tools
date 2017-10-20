@@ -35,14 +35,16 @@ public class ArrayTools {
 		private T[] dist = null;
 		private Class<T>  type = null;
 		
+		@SuppressWarnings("unchecked")
 		Builder(Class<T>  type) {
             this.type = type;
+            this.dist =  (T[]) Array.newInstance(type, 0); 
         }
 
         @SuppressWarnings("unchecked")
 		Builder(Class<T>  type, int size) {
-            this.dist =  (T[]) Array.newInstance(type, size); 
             this.type = type;
+            this.dist =  (T[]) Array.newInstance(type, size); 
         }
 
         @SuppressWarnings("unchecked")
@@ -178,7 +180,7 @@ public class ArrayTools {
         }
         
         
-        public T[] build() {
+		public T[] build() {
         	return this.dist;
         }
         
@@ -296,5 +298,11 @@ public class ArrayTools {
 		int[] e = {5,6, 7};
 		int[] f = ArrayTools.custom(Integer.class).addInt(e).add(c).buildInt();
 		System.out.println(JSONArray.toJSONString(f));
+		
+
+		char[] g = ArrayTools.custom(Character.class).buildChar();
+		System.out.println(JSONArray.toJSONString(g));
+		byte[] k = {5,6,7};
+		System.out.println(JSONArray.toJSONString(k));
 	}
 }
