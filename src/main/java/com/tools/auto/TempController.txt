@@ -160,7 +160,7 @@ public class TempController{
 	
 	//TODO normal
 	
-	@RequestMapping(name="save", path={"/base/add"})
+	@RequestMapping(name="save", path={"/add"})
 	@API(name="新增", 
 		info="默认需登录。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -186,7 +186,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="modify", path={"/base/modify"})
+	@RequestMapping(name="modify", path={"/modify"})
 	@API(name="修改", 
 		info="默认需登录。<br/>根据主键修改。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -248,7 +248,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="delete", path={"/base/delete"})
+	@RequestMapping(name="delete", path={"/delete"})
 	@API(name="删除", 
 		info="默认需登录。<br/>根据主键删除。<br/>适用于管理后台。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -273,7 +273,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="query", path={"/base/query"})
+	@RequestMapping(name="query", path={"/query"})
 	@API(name="分页查询", 
 		info="默认需登录。<br/>rows：1 - 9999。<br/>适用于管理后台，分页查询、搜索查询。", 
 		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="keywords", info="关键字查询（未使用）")}, 
@@ -311,7 +311,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="list", path={"/base/list"})
+	@RequestMapping(name="list", path={"/list"})
 	@API(name="查询所有", 
 		info="默认需登录。<br/>数据多时，建议使用条件查询。<br/>适用于管理后台，查询所有。", 
 		request={}, 
@@ -335,7 +335,7 @@ public class TempController{
 	
 	//TODO find
 	
-	@RequestMapping(name="find", path={"/base/find"})
+	@RequestMapping(name="find", path={"/find"})
 	@API(name="条件查询", 
 		info="适用于前端展示，根据Entity字段条件查询。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -362,7 +362,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="findOne", path={"/base/findOne"})
+	@RequestMapping(name="findOne", path={"/findOne"})
 	@API(name="查询一个", 
 		info="适用于前端展示，根据Entity字段条件查询一个。", 
 		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -389,7 +389,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="findPage", path={"/base/findPage"})
+	@RequestMapping(name="findPage", path={"/findPage"})
 	@API(name="分页条件查询", 
 		info="rows：1 - 9999。<br/>适用于前端展示，分页条件查询。", 
 		request={@ParamsInfo(name="page", info="页码（必填）"),@ParamsInfo(name="rows", info="每页条数（必填）"),@ParamsInfo(name="参数", info="Entity各个字段")}, 
@@ -425,7 +425,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="findAll", path={"/base/findAll"})
+	@RequestMapping(name="findAll", path={"/findAll"})
 	@API(name="查询所有", 
 		info="适用于前端展示。", 
 		request={}, 
@@ -448,7 +448,7 @@ public class TempController{
 	
 	//TODO excel
 	
-	@RequestMapping(name="excel", path={"/base/excel"})
+	@RequestMapping(name="excel", path={"/excel"})
 	@API(name="导出所有", 
 		info="默认需登录。<br/>适用于管理后台，导出所有。", 
 		request={}, 
@@ -459,7 +459,7 @@ public class TempController{
 		excelFree(req, resp);
 	}
 	
-	@RequestMapping(name="excelHeader", path={"/base/excelHeader"})
+	@RequestMapping(name="excelHeader", path={"/excelHeader"})
 	@API(name="获取可导项", 
 		info="默认需登录。<br/>适用于管理后台，获取可导项。", 
 		request={}, 
@@ -502,7 +502,7 @@ public class TempController{
 		return json.toJSONString();
 	}
 	
-	@RequestMapping(name="excelFree", path={"/base/excelFree"})
+	@RequestMapping(name="excelFree", path={"/excelFree"})
 	@API(name="根据可导项导出", 
 		info="默认需登录。<br/>适用于管理后台，根据可导项导出。", 
 		request={@ParamsInfo(name="fields", info="可导项，逗号分隔")}, 
