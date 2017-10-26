@@ -22,6 +22,7 @@ public class VerifyConfig {
 	
 	private static String uidName = CtrlConfig.uidName; //登录验证的uid名称
 	private static String tokenName = CtrlConfig.tokenName; //登录验证的token名称
+	private static boolean point = CtrlConfig.point;	//开启单点登录验证
 	
 	//登录验证（公有）
 	private static Map<String, Object> verifyLogin(HttpServletRequest req, Class<?> clss){
@@ -36,7 +37,7 @@ public class VerifyConfig {
 		if(vMap != null){
 			return vMap;
 		}
-		if(!AccessTokenTools.checkToken(uid, token)){
+		if(!AccessTokenTools.checkToken(uid, token, point)){
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(ResultKey.CODE, Tips.ERROR111.getCode());
 			map.put(ResultKey.MSG, Tips.ERROR111.getDesc());

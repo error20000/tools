@@ -151,7 +151,12 @@ public class JdbcOperate {
 		PreparedStatement preparedStatement = null;
 		try {
 			preparedStatement = TranslateSQL.createPreparedStatement(conn, sqlText, mapArg);
-			return preparedStatement.executeUpdate();
+			int stats = preparedStatement.executeUpdate();
+			ResultSet rs=preparedStatement.getGeneratedKeys();
+			if(rs.next()){
+				System.out.println(rs.getObject(1));
+			}
+			return stats;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

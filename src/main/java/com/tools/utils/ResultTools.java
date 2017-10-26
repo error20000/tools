@@ -7,10 +7,11 @@ import com.alibaba.fastjson.JSONObject;
 
 public class ResultTools {
 	
-	public static final Map<String, Object> DEFAULT = new Builder().build();
+	public static final Map<String, Object> SUCCESS = new Builder(Tips.ERROR1).build();
+	public static final Map<String, Object> FAILED = new Builder(Tips.ERROR0).build();
 	
 	public static ResultTools.Builder custom(){
-		return custom(Tips.ERROR1, "");
+		return new Builder();
 	}
 	
 	public static ResultTools.Builder custom(Tips tips){
@@ -24,10 +25,6 @@ public class ResultTools {
 		return new Builder(map);
 	}
 	
-	public static String toJSONString(Map<?, ?> map) {
-    	return JSONObject.toJSONString(map);
-    }
-
 	public static class Builder {
 
 		private Map<String, Object> map = null;
@@ -42,8 +39,21 @@ public class ResultTools {
             this.map =  map;
         }
         
+        Builder(Tips tips) {
+            super();
+            this.map =  new HashMap<String, Object>();
+            this.map.put(ResultKey.CODE, tips.getCode());
+            this.map.put(ResultKey.MSG, tips.getDesc());
+        }
+        
         public Builder put(String key, Object value){
     		this.map.put(key, value);
+            return this;
+        }
+        
+        public Builder put(Tips tips){
+            this.map.put(ResultKey.CODE, tips.getCode());
+            this.map.put(ResultKey.MSG, tips.getDesc());
             return this;
         }
         
@@ -66,16 +76,4 @@ public class ResultTools {
         }
 	}
 	
-	public static void main(String[] args) {
-		Map<String, Object> map = ResultTools.custom().put("test1", "test1").put("test2", "test2").put("test3", "test3").put("test1", "test4").build();
-		Map<String, Object> map2 = ResultTools.custom().build();
-		ResultTools.DEFAULT.put("2", "3");
-		Map<String, Object> map3 = ResultTools.DEFAULT;
-		map3.put("1", "2");
-		Map<String, Object> map4 = ResultTools.DEFAULT;
-		System.out.println(map.toString());
-		System.out.println(map2.toString());
-		System.out.println(map3.toString());
-		System.out.println(map4.toString());
-	}
 }

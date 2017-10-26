@@ -92,7 +92,7 @@ public class TranslateSQL {
 		//获取preparedStatement可用的 SQL
 		String preparedSql = TranslateSQL.preparedSql(sqlStr);
 		
-		PreparedStatement preparedStatement = (PreparedStatement) conn.prepareStatement(preparedSql);
+		PreparedStatement preparedStatement = (PreparedStatement) conn.prepareStatement(preparedSql, Statement.RETURN_GENERATED_KEYS);
 
 		//如果params为空,则新建一个
 		if(params==null){

@@ -36,12 +36,19 @@ public class AccessTokenTools {
 	}
 	
 	public static final boolean checkToken(String key, String token){
-		return checkToken(key, token, defOutTime );
+		return checkToken(key, token, false, defOutTime );
 	}
 	
-	public static final boolean checkToken(String key, String token, long overTime){
+	public static final boolean checkToken(String key, String token, boolean point){
+		return checkToken(key, token, point, defOutTime );
+	}
+	
+	public static final boolean checkToken(String key, String token, boolean point, long overTime){
 		AccessToken tmp = getToken(key);
 		if(tmp == null){ 
+			return false;
+		}
+		if(point && !tmp.getToken().equals(token)){ //开启单点登录验证，会验证token
 			return false;
 		}
 		long cur = System.currentTimeMillis();
