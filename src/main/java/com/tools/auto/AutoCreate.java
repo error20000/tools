@@ -11,6 +11,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tools.auto.db.Structure;
 import com.tools.auto.db.Table;
 import com.tools.auto.db.TableManager;
@@ -206,7 +207,7 @@ public class AutoCreate {
 		createService("TempService", eName + "Service");
 		createServiceImpl("TempServiceImpl", eName + "ServiceImpl");
 		//创建controller
-		createController("TempController", eName + "Controller");
+		createController("TempController", eName + "Controller", table);
 	}
 	
 	/**
@@ -283,9 +284,9 @@ public class AutoCreate {
 	 * @param tempName 模版名
 	 * @param fileName 生成文件名
 	 */
-	public void createController(String tempName, String fileName){
+	public void createController(String tempName, String fileName, Table table){
 		String packName = config.getControllerPath(); //包路径
-		createControllerFile(packName, tempName, fileName, config.getChartset());
+		createControllerFile(packName, tempName, fileName, config.getChartset(), table);
 	}
 	
 	/**
@@ -701,7 +702,7 @@ public class AutoCreate {
 		System.out.println("end create servlet file... " +packName+" "+fileName);
 	}
 	
-	private void createControllerFile(String packName, String tempName, String fileName, String chartset){
+	private void createControllerFile(String packName, String tempName, String fileName, String chartset, Table table){
 		System.out.println("start create controller file... " +packName+" "+fileName);
 		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版路径
 		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
@@ -747,6 +748,9 @@ public class AutoCreate {
 				}
 				if(line.indexOf("{reqPrefix}") != -1){
 					line = line.replace("{reqPrefix}", config.getReqPrefix());
+				}
+				if(line.indexOf("{comment}") != -1){
+					line = line.replace("{comment}", table.getComment());
 				}
 				
 				bw.write(line); 

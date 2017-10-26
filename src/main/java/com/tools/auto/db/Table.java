@@ -9,6 +9,7 @@ public class Table {
 	private List<Index> indexInfo; //表索引
 	private List<List<TableData>> tableData; //表数据
 	private String entityName; //bean名称
+	private String comment; //表注释  TABLE_COMMENT
 	
 	
 	public String getTableName() {
@@ -40,6 +41,12 @@ public class Table {
 	}
 	public void setEntityName(String entityName) {
 		this.entityName = entityName;
+	}
+	public String getComment() {
+		return comment;
+	}
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 	
 	

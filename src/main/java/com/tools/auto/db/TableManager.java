@@ -16,40 +16,52 @@ import com.tools.utils.Attacks;
 import com.tools.utils.Tools;
 
 public class TableManager {
+
+	private String dbName = null;
+	private JdbcOperate jdbcOperate = null;
 	
-	private static JdbcOperate jdbcOperate = null;
-	
-	
+	public TableManager(){
+		
+	}
 	public TableManager(String dbpath){
 		File file = new File(dbpath);
 		if(file.exists()){
-			new TableManager(file);
+			//this(file);  调用当前对象的其它构造函数    构造方法之间进行调用时this语句只能出现在第一行
+			DataSource dataSource = new C3P0PropertiesConfig(file).getDataSource();
+			jdbcOperate = new JdbcOperate(dataSource);
+			dbName = getDBName(Tools.getProperties(file).getProperty("jdbcUrl"));
 		}else{
 			DataSource dataSource = new C3P0PropertiesConfig(dbpath).getDataSource();
 			jdbcOperate = new JdbcOperate(dataSource);
+			dbName = getDBName(Tools.getProperties(dbpath).getProperty("jdbcUrl"));
 		}
 	}
 	
 	public TableManager(File file){
 		DataSource dataSource = new C3P0PropertiesConfig(file).getDataSource();
 		jdbcOperate = new JdbcOperate(dataSource);
+		dbName = getDBName(Tools.getProperties(file).getProperty("jdbcUrl"));
 	}
 	
-	public TableManager(DataSource dataSource){
-		jdbcOperate = new JdbcOperate(dataSource);
+	public TableManager(DataSource dataSource, String dbName){
+		this.dbName = dbName;
+		this.jdbcOperate = new JdbcOperate(dataSource);
 	}
 	
 	public List<Table> getDbInfo() {
-		List<String> tableNames = getTableNames();
+		List<Map<String, Object>> tableNames = getTableInfos();
 		Table table = null;
 		List<Table> tables = null;
 		if(tableNames!=null && tableNames.size()>0){
 			tables = new ArrayList<Table>();
-			for(int i=0;i<tableNames.size();i++){
+			for(int i = 0; i < tableNames.size(); i++){
+				String name = tableNames.get(i).get("TABLE_NAME")+"";
+				String comment = tableNames.get(i).get("TABLE_COMMENT")+"";
 				table = new Table();
-				table.setTableInfo(getTableStructure(tableNames.get(i)));
-				table.setIndexInfo(getTableIndex(tableNames.get(i)));
-				table.setTableName(tableNames.get(i));
+				table.setTableInfo(getTableStructure(name));
+				table.setIndexInfo(getTableIndex(name));
+				table.setTableName(name);
+				table.setComment(comment);
 				tables.add(table);
 			}
 		}
@@ -58,17 +70,51 @@ public class TableManager {
 	
 	public Table getDbTable(String tableName) {
 		Table table = new Table();
-		table.setTableInfo(getTableStructure(tableName));
-		table.setIndexInfo(getTableIndex(tableName));
-		table.setTableName(tableName);
+		List<Map<String, Object>> tableNames = getTableInfo(tableName);
+		if(tableNames != null && tableNames.size() > 0){
+			table.setTableInfo(getTableStructure(tableName));
+			table.setIndexInfo(getTableIndex(tableName));
+			table.setTableName(tableName);
+			String comment = tableNames.get(0).get("TABLE_COMMENT")+"";
+			table.setComment(comment);
+		}
 		return table;
 	}
 	
-	private List<String> getTableNames() {
-		String sql = "show tables";
-		List<String> tables = new ArrayList<String>();
+	private String getDBName(String jdbcUrl){
+		if(Tools.isNullOrEmpty(jdbcUrl)){
+			return "";
+		}
+		if(jdbcUrl.indexOf("?") != -1){
+			jdbcUrl = jdbcUrl.substring(0, jdbcUrl.indexOf("?"));
+		}
+		return jdbcUrl.substring(jdbcUrl.lastIndexOf("/")+1);
+	}
+	
+	private List<Map<String, Object>> getTableInfos() {
+		if(Tools.isNullOrEmpty(dbName)){
+			System.out.println("数据库名称解析错误。。。。。。");
+			return null;
+		}
+		String sql = "select * from information_schema.TABLES where TABLE_SCHEMA='"+dbName+"' and TABLE_TYPE='BASE TABLE';"; //"show tables";
+		List<Map<String, Object>> tables = new ArrayList<Map<String, Object>>();
 		try {
-			tables = jdbcOperate.queryObjectList(sql, String.class);
+			tables = jdbcOperate.queryMapList(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return tables;
+	}
+	
+	private List<Map<String, Object>> getTableInfo(String tableName) {
+		if(Tools.isNullOrEmpty(dbName) || Tools.isNullOrEmpty(tableName)){
+			System.out.println("数据库名称（表名）解析错误。。。。。。");
+			return null;
+		}
+		String sql = "select * from information_schema.TABLES where TABLE_SCHEMA='"+dbName+"' and TABLE_NAME='"+tableName+"';"; //"show tables";
+		List<Map<String, Object>> tables = new ArrayList<Map<String, Object>>();
+		try {
+			tables = jdbcOperate.queryMapList(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -188,6 +234,7 @@ public class TableManager {
 		System.out.println(list);
 
 		System.out.println("1=1and ".toLowerCase().matches(Attacks.sqlAnd));
+		
 	}
 	
 }

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -80,14 +81,33 @@ public class HttpTools {
 	/**
 	 * 发送 post请求
 	 * @param httpUrl 地址
+	 * @param params 参数
+	 * @param type 参数格式
+	 */
+	public String sendHttpPost(String httpUrl, String params, ContentType type) {
+		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
+		try {
+			//设置参数
+			StringEntity stringEntity = new StringEntity(params, "UTF-8");
+			stringEntity.setContentType(type.getMimeType());
+			httpPost.setEntity(stringEntity);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sendHttpPost(httpPost);
+	}
+	
+	/**
+	 * 发送 post请求
+	 * @param httpUrl 地址
 	 * @param maps 参数
 	 */
-	public String sendHttpPost(String httpUrl, Map<String, String> maps) {
+	public String sendHttpPost(String httpUrl, Map<String, Object> maps) {
 		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
 		// 创建参数队列  
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 		for (String key : maps.keySet()) {
-			nameValuePairs.add(new BasicNameValuePair(key, maps.get(key)));
+			nameValuePairs.add(new BasicNameValuePair(key, maps.get(key)+""));
 		}
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
@@ -104,11 +124,11 @@ public class HttpTools {
 	 * @param maps 参数
 	 * @param fileLists 附件
 	 */
-	public String sendHttpPost(String httpUrl, Map<String, String> maps, List<File> fileLists) {
+	public String sendHttpPost(String httpUrl, Map<String, Object> maps, List<File> fileLists) {
 		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
 		MultipartEntityBuilder meBuilder = MultipartEntityBuilder.create();
 		for (String key : maps.keySet()) {
-			meBuilder.addPart(key, new StringBody(maps.get(key), ContentType.TEXT_PLAIN));
+			meBuilder.addPart(key, new StringBody(maps.get(key)+"", ContentType.TEXT_PLAIN));
 		}
 		for(File file : fileLists) {
 			FileBody fileBody = new FileBody(file);
@@ -276,6 +296,25 @@ public class HttpTools {
 		}
 		return responseContent;
 	}
+	
+	public static void main(String[] args) {
+		String url = "http://s9.gw.gf.ppgame.com/index.php/1009/Api/getRole";
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("openId", "4378142930864547");
+		long time = System.currentTimeMillis()/1000;
+		map.put("time", time+"");
+		map.put("sign", Tools.md5("openId=4378142930864547&time="+time));
+		
+		String data = "openId=4378142930864547&time="+time+"&sign="+Tools.md5("openId=4378142930864547&time="+time);
+		
+		String str1 = HttpTools.getInstance().sendHttpPost(url, map);
+		System.out.println(str1);
+		String str2 = HttpTools.getInstance().sendHttpPost(url, data);
+		System.out.println(str2);
+		
+	}
+	
 	
 }
 

@@ -9,11 +9,11 @@ import com.tools.jdbc.c3p0.C3P0PropertiesConfig;
 
 public class JdbcOperateManager {
 	//主库
-	private static DataSource dataSource = null;
-	private static JdbcOperate jdbcOperate = null;
+	private DataSource dataSource = null;
+	private JdbcOperate jdbcOperate = null;
 	//从库
-	private static DataSource dataSourceSecond = null;
-	private static JdbcOperate jdbcOperateSecond = null;
+	private DataSource dataSourceSecond = null;
+	private JdbcOperate jdbcOperateSecond = null;
 	
 	public JdbcOperateManager(String dbPath){
 		//主从库一样
@@ -37,18 +37,23 @@ public class JdbcOperateManager {
 		C3P0PropertiesConfig config = null;
 		File file = new File(dbPath);
 		File fileSecond = new File(dbPathSecond);
-		if(file.exists() && fileSecond.exists()){
+		//主
+		if(file.exists()){ 
 			config = new C3P0PropertiesConfig(file);
 			dataSource = config.getDataSource();
-			config = new C3P0PropertiesConfig(fileSecond);
-			dataSourceSecond = config.getDataSource();
 		}else{
 			config = new C3P0PropertiesConfig(dbPath);
 			dataSource = config.getDataSource();
+		}
+		jdbcOperate = new JdbcOperate(dataSource);
+		//从
+		if(fileSecond.exists()){ 
+			config = new C3P0PropertiesConfig(fileSecond);
+			dataSourceSecond = config.getDataSource();
+		}else{
 			config = new C3P0PropertiesConfig(dbPathSecond);
 			dataSourceSecond = config.getDataSource();
 		}
-		jdbcOperate = new JdbcOperate(dataSource);
 		jdbcOperateSecond = new JdbcOperate(dataSourceSecond);
 	}
 	

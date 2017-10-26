@@ -38,7 +38,7 @@ import com.tools.web.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping(name="TempController", path={"{reqPrefix}/{path}"})
-@API(info="", entity={Temp.class})
+@API(info="{comment}", entity={Temp.class})
 public class TempController{
 	
 	private TempService service = new TempServiceImpl();
@@ -440,6 +440,33 @@ public class TempController{
 		//执行
 		JSONObject json = new JSONObject();
 		List<Temp> res = service.findList();
+		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
+		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
+		json.put(ResultKey.DATA, res);
+		return json.toJSONString();
+	}
+	
+	@RequestMapping(name="findSize", path={"/findSize"})
+	@API(name="查询条数", 
+		info="适用于前端展示，根据Entity字段条件查询。", 
+		request={@ParamsInfo(name="参数", info="Entity各个字段")}, 
+		response={@ParamsInfo(name=ResultKey.CODE, info="返回码"),@ParamsInfo(name=ResultKey.MSG, info="描述"),@ParamsInfo(name=ResultKey.DATA, info="数据")})
+	public String findSize(HttpServletRequest req, HttpServletResponse resp){
+
+		//验证
+		Map<String, Object> vMap = verifyFind(req);
+		if(vMap != null){
+			return JSONObject.toJSONString(vMap);
+		}
+		//执行
+		JSONObject json = new JSONObject();
+		long res = 0L;
+		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
+		if(condition == null || condition.isEmpty()){
+			res = service.size();
+		}else{
+			res = service.size(condition);
+		}
 		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
 		json.put(ResultKey.MSG, Tips.ERROR1.getDesc());
 		json.put(ResultKey.DATA, res);
