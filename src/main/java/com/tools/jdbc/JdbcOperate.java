@@ -152,10 +152,13 @@ public class JdbcOperate {
 		try {
 			preparedStatement = TranslateSQL.createPreparedStatement(conn, sqlText, mapArg);
 			int stats = preparedStatement.executeUpdate();
-			ResultSet rs=preparedStatement.getGeneratedKeys();
+			//注销返回自增id
+			/*ResultSet rs=preparedStatement.getGeneratedKeys();
 			if(rs.next()){
 				System.out.println(rs.getObject(1));
 			}
+			System.out.println(sqlText);
+			System.out.println(stats);*/
 			return stats;
 		} catch (SQLException e) {
 			e.printStackTrace();
