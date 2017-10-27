@@ -194,6 +194,19 @@ public class Tools {
 	}
 	
 	/**
+	 * 格式化字符串
+	 * @param str  null转""
+	 * @return
+	 */
+	public static String formatString(String str){
+		if(isNullOrEmpty(str)){
+			return "";
+		}else{
+			return str;
+		}
+	}
+	
+	/**
 	 * 格式化日期
 	 * @return 返回当前日期，格式：initDateFormatStr
 	 */
