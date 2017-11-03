@@ -104,11 +104,11 @@ public class CacheTools {
 		return initGetCacheObj(key);
 	}
 	
-	public static final boolean checkTimeout(String key, String obj){
-		return checkTimeout(key, obj, 2 * 3600 * 1000 );
+	public static final boolean checkTimeout(String key){
+		return checkTimeout(key, 2 * 3600 * 1000 );
 	}
 	
-	public static final boolean checkTimeout(String key, String obj, long outTime){
+	public static final boolean checkTimeout(String key, long outTime){
 		CacheObject tmp = getCacheObj(key);
 		if(tmp == null){ 
 			return false;

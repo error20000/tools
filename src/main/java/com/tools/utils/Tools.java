@@ -207,6 +207,20 @@ public class Tools {
 	}
 	
 	/**
+	 * 格式化字符串为数字
+	 * @param str  null转""
+	 * @return
+	 */
+	public static String formatNumber(String str){
+		if(isNullOrEmpty(str)){
+			return "";
+		}else{
+			str = str.replaceAll("[^0-9]", "");
+			return str;
+		}
+	}
+	
+	/**
 	 * 格式化日期
 	 * @return 返回当前日期，格式：initDateFormatStr
 	 */
