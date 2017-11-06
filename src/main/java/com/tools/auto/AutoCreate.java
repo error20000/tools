@@ -11,7 +11,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.fastjson.JSONObject;
 import com.tools.auto.db.Structure;
 import com.tools.auto.db.Table;
 import com.tools.auto.db.TableManager;
