@@ -13,13 +13,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.fastjson.JSONArray;
 import com.tools.annotation.API;
 import com.tools.annotation.Excel;
 import com.tools.annotation.ParamsInfo;
 import com.tools.jdbc.PrimaryKey;
 import com.tools.jdbc.PrimaryKeyType;
 import com.tools.utils.Tips;
+import com.tools.utils.Tools;
 import com.tools.web.RequestMappingData;
 import com.tools.web.ServletInitializerApi;
 import com.tools.web.annotation.Controller;
@@ -530,7 +530,32 @@ public class APIController{
 		  			
 		      out.write("\r\n");
 		      out.write("  \t\t\t<p>");
-		      out.print(tmp.name()+": "+ tmp.info().replace("（必填）", "<font color=\"red\">（必填）</font>"));
+		      
+		      //换颜色,换接口
+		      String info = tmp.info();
+			  String regEx = "<[^>]*>[^<]*</[^>]*>";
+			  String regEx2 = "</[^>]*>";
+		      List<String> list = Tools.parseRegEx(info, regEx);
+				for (String string : list) {
+					String lable = "";
+					String content = "";
+					List<String> list2 = Tools.parseRegEx(string, regEx2);
+					for (String string2 : list2) {
+						String type = string2.replace("</", "").replace(">", "");
+						if(type.equals("a:ifs")){
+							//接口
+							content = string.replace("<"+type+">", "").replace("</"+type+">", "");
+							lable = string.replace("<"+type+">", "<a href=\"../api/interfaces/find?en="+content+"\">").replace("</"+type+">", "</a>");
+							info = info.replace(string, lable);
+						}else{
+							//颜色
+							lable = string.replace("<"+type+">", "<font color=\""+type+"\">").replace("</"+type+">", "</font>");
+							info = info.replace(string, lable);
+						}
+					}
+				}
+				
+		      out.print(tmp.name()+": "+ info);
 		      out.write("</p>\r\n");
 		      out.write("  \t\t\t");
 

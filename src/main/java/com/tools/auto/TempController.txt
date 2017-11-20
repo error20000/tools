@@ -301,7 +301,7 @@ public class TempController{
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		//TODO 需要自己修改关键字查询（默认未使用）
 		
-		int start = "0".equals(page) ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
+		int start = Tools.parseInt(page) - 1 < 0 ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
 		List<Temp> res = service.findList(condition, start, Tools.parseInt(rows));
 		long total = service.size(condition);
 		json.put(ResultKey.CODE, Tips.ERROR1.getCode());
@@ -415,7 +415,7 @@ public class TempController{
 		JSONObject json = new JSONObject();
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, Temp.class);
 		
-		int start = "0".equals(page) ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
+		int start = Tools.parseInt(page) - 1 < 0 ? 0 : (Tools.parseInt(page) - 1 ) * Tools.parseInt(rows);
 		List<Temp> res = service.findList(condition, start, Tools.parseInt(rows));
 		long total = service.size(condition);
 		json.put(ResultKey.CODE, Tips.ERROR1.getCode());

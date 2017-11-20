@@ -1,15 +1,15 @@
 package com.tools.utils;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public class CacheTools {
 	
@@ -21,7 +21,7 @@ public class CacheTools {
 	private static int runTime = 2 * 3600; //定时清理时间。单位（秒）
 	private static long outTime = 2 * 3600 * 1000; //资源超时时间。单位（毫秒）
 	
-	private static SortedMap<String, String> sortMap = new TreeMap<String, String>();
+	private static List<Map<String, String>> sortMap = new ArrayList<Map<String, String>>();
 	
 	static{
 		autoClear();
@@ -35,35 +35,32 @@ public class CacheTools {
 		return objMap.get(key);
 	}
 
-	public static CacheObject initClearCacheObj(String key) {
-		return objMap.remove(key);
+	public static void initClearCacheObj(String key) {
+		objMap.remove(key);
 	}
 
-	/*public static void initAutoClear() {
-		System.out.println("defult clear...");
-		long cur = System.currentTimeMillis();
-		Set<String> keys = objMap.keySet();
-		Iterator<String> it = keys.iterator();
-		while (it.hasNext()) {
-			String key = it.next();
-			CacheObject obj = objMap.get(key);
-			if((obj.getMillis() + outTime) < cur){ //超时清理
-				objMap.remove(key);
-			}
-		}
-	}*/
 	
 	public static void initAutoClear() {
-		System.out.println("defult new clear...");
+		System.out.println("clear ing ...");
 		long cur = System.currentTimeMillis();
-		String toKey = (cur - outTime) + "" + 1000;
-		SortedMap<String, String> clearMap = sortMap.headMap(toKey);
-		Set<String> keys = clearMap.keySet();
-		Iterator<String> it = keys.iterator();
-		while (it.hasNext()) {
-			String sortKey = it.next();
-			objMap.remove(clearMap.get(sortKey));
+		String toKey = cur + "" + 1000;
+		//待清理数据
+		List<Map<String, String>> clearList = sortMap.stream()
+			.filter(e -> e.get("sortKey").compareTo(toKey) < 0)
+			.collect(Collectors.toList());
+		//剩余数据
+		synchronized (sortMap) {
+			sortMap = sortMap.stream()
+					.filter(e -> e.get("sortKey").compareTo(toKey) >= 0)
+					.collect(Collectors.toList());
 		}
+		//清理
+		for (Map<String, String> map : clearList) {
+			String key = map.get("key");
+			initClearCacheObj(key);
+		}
+		clearList = null;
+		System.out.println("clear end ...");
 	}
 	
 	public static final void autoClear() {
@@ -87,17 +84,24 @@ public class CacheTools {
 	
 	
 	
-	
 	public static final void setCacheObj(String key, Object value){
+		setCacheObj(key, value, outTime);
+	}
+	
+	public static final void setCacheObj(String key, Object value, long timeOut){
 		CacheObject obj = new CacheObject(key, value);
-		long cur = System.currentTimeMillis();
+		long cur = System.currentTimeMillis(); //加上超时时间
+		obj.setMillis(cur);
+		initSetCacheObj(obj);
+		//清理：排序key
 		int index = count.getAndAdd(1);
 		count.compareAndSet(1000, 1);
-		obj.setMillis(cur);
-		//排序key
+		cur += timeOut; //加上超时时间
 		String sortKey = cur +""+(index < 10 ? "000"+index : index < 100 ? "00"+index : index < 1000 ? "0"+index : index);
-		sortMap.put(sortKey, key);
-		initSetCacheObj(obj);
+		Map<String, String> node = new HashMap<String, String>();
+		node.put("sortKey", sortKey);
+		node.put("key", key);
+		sortMap.add(node);
 	}
 	
 	public static final CacheObject getCacheObj(String key){
@@ -111,15 +115,15 @@ public class CacheTools {
 	public static final boolean checkTimeout(String key, long outTime){
 		CacheObject tmp = getCacheObj(key);
 		if(tmp == null){ 
-			return false;
+			return true;
 		}
 		long cur = System.currentTimeMillis();
 		if((tmp.getMillis() + outTime) < cur){
 			//超时移除
 			clearCacheObj(key);
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 	
 	public static final void clearCacheObj(String key){

@@ -6,6 +6,22 @@ public class KeyValue {
 	private Object condition;
 	private Object value;
 	
+	public KeyValue() {
+	}
+	
+	
+	public KeyValue(String key, Object value) {
+		this.key = key;
+		this.value = value;
+	}
+
+	public KeyValue(String key, Object condition, Object value) {
+		this.key = key;
+		this.condition = condition;
+		this.value = value;
+	}
+
+
 	public String getKey() {
 		return key;
 	}

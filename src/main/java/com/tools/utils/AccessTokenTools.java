@@ -35,9 +35,6 @@ public class AccessTokenTools {
 		return initGetToken(key);
 	}
 	
-	public static final boolean checkToken(String key, String token){
-		return checkToken(key, token, false, defOutTime );
-	}
 	
 	public static final boolean checkToken(String key, String token, boolean point){
 		return checkToken(key, token, point, defOutTime );
@@ -48,7 +45,7 @@ public class AccessTokenTools {
 		if(tmp == null){ 
 			return false;
 		}
-		if(point && !tmp.getToken().equals(token)){ //开启单点登录验证，会验证token
+		if(point && !tmp.getToken().equals(token)){ //验证token
 			return false;
 		}
 		long cur = System.currentTimeMillis();

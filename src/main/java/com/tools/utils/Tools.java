@@ -22,6 +22,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -256,12 +258,39 @@ public class Tools {
 		if(date == null){
 			Calendar calendar = Calendar.getInstance();
 			date = calendar.getTime();
-//			date = new Date();
 		}
 		str = isNullOrEmpty(str) ? initDateFormatStr : str;
 		return new SimpleDateFormat(str).format(date);
 	}
 	
+	/**
+	 * 格式化日期
+	 * @param str 字符串日期
+	 * @return date 返回日期。
+	 */
+	public static Date getDate(String str){
+		return getDate(str, initDateFormatStr);
+	}
+	
+	/**
+	 * 格式化日期
+	 * @param str 字符串日期
+	 * @param formatStr 字符串日期格式，默认：initDateFormatStr
+	 * @return date 返回日期。
+	 */
+	public static Date getDate(String str, String formatStr){
+		if(isNullOrEmpty(str)){
+			Calendar calendar = Calendar.getInstance();
+			return calendar.getTime();
+		}
+		formatStr = isNullOrEmpty(formatStr) ? initDateFormatStr : formatStr;
+		try {
+			return new SimpleDateFormat(formatStr).parse(str);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	/**
 	 * 生成随机数
@@ -578,6 +607,27 @@ public class Tools {
 	}
 	
 	/**
+	 * 参数验证，不为空
+	 * @param key	参数名
+	 * @param value	参数值
+	 * @return null	通过验证
+	 */
+	public static Map<String, Object> verifyParam(String key, String value) {
+		return verifyParam(key, value, 0, 0, false);
+	}
+	
+	/**
+	 * 参数验证，最大长度
+	 * @param key	参数名
+	 * @param value	参数值
+	 * @param maxLength	为 0 不参与最大长度验证
+	 * @return null	通过验证
+	 */
+	public static Map<String, Object> verifyParam(String key, String value, int maxLength) {
+		return verifyParam(key, value, 1, maxLength, false);
+	}
+	
+	/**
 	 * 参数验证
 	 * @param key	参数名
 	 * @param value	参数值
@@ -773,7 +823,7 @@ public class Tools {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * 获取请求参数，防注入
 	 * @param req	request请求
@@ -1252,6 +1302,29 @@ public class Tools {
 		return content;
 	}
 	
+
+	/**
+	 * 读文件
+	 * @param file	待读入文件
+	 * @return String
+	 */
+	public static String fileReaderAll(File file) {
+		String content = "";
+		if(file.exists()){
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
+				List<String> list = reader.lines().collect(Collectors.toList());
+				for (String str : list) {
+		    		content += str + "\n";
+				}
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return content;
+	}
+	
 	/**
 	 * 检测文件变化
 	 * @param file	被检测文件
@@ -1713,6 +1786,41 @@ public class Tools {
 //		String imgstr = getImageStr("C:\\Users\\Administrator\\Desktop\\65.png");
 //		System.out.println(imgstr);
 //		generateImage(imgstr, "C:\\Users\\Administrator\\Desktop\\63.png");
+		Date date;
+		try {
+			date = new SimpleDateFormat(initDateFormatStr).parse("2011-09-09 23:12:12");
+			System.out.println(date.getTime());
+
+			System.out.println(Tools.formatDate(date));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/*String str = "<blur>用户名</blur><red>（必填）</red>详见接口 <a:ifs>account_reg_phone</a:ifs>";
+		String regEx = "<[^>]*>[^<]*</[^>]*>";
+		String regEx2 = "</[^>]*>";
+		System.out.println(JSONArray.toJSONString(Tools.parseRegEx(str, regEx)));
+		List<String> list = Tools.parseRegEx(str, regEx);
+		for (String string : list) {
+			String name = "";
+			String content = "";
+			List<String> list2 = Tools.parseRegEx(string, regEx2);
+			for (String string2 : list2) {
+				String type = string2.replace("</", "").replace(">", "");
+				if(type.equals("a:ifs")){
+					//接口
+					content = string.replace("<"+type+">", "").replace("</"+type+">", "");
+					name = string.replace("<"+type+">", "<a href=\"../api/interfaces/find?en="+content+"\">").replace("</"+type+">", "</a>");
+					str = str.replace(string, name);
+				}else{
+					//颜色
+					name = string.replace("<"+type+">", "<font color=\""+type+"\">").replace("</"+type+">", "</font>");
+					str = str.replace(string, name);
+				}
+			}
+		}
+		System.out.println(str);*/
 	}
 	
 }
