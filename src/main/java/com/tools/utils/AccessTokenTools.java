@@ -35,6 +35,9 @@ public class AccessTokenTools {
 		return initGetToken(key);
 	}
 	
+	public static final boolean checkToken(String key, String token){
+		return checkToken(key, token, true, defOutTime );
+	}
 	
 	public static final boolean checkToken(String key, String token, boolean point){
 		return checkToken(key, token, point, defOutTime );
