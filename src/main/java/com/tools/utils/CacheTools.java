@@ -83,15 +83,26 @@ public class CacheTools {
 	
 	
 	
-	
+	/**
+	 * 设置缓存数据。默认超时时间2小时。其中回收程序默认2小时运行一次。
+	 * @param key
+	 * @param value
+	 */
 	public static final void setCacheObj(String key, Object value){
 		setCacheObj(key, value, outTime);
 	}
 	
+	/**
+	 * 设置缓存数据。自定义超时时间。其中回收程序默认2小时运行一次。
+	 * @param key
+	 * @param value
+	 * @param timeOut
+	 */
 	public static final void setCacheObj(String key, Object value, long timeOut){
 		CacheObject obj = new CacheObject(key, value);
-		long cur = System.currentTimeMillis(); //加上超时时间
-		obj.setMillis(cur);
+		long cur = System.currentTimeMillis();
+		obj.setMillis(cur); //设置缓存时间
+		obj.setTimeOut(cur + timeOut); //设置超时时间
 		initSetCacheObj(obj);
 		//清理：排序key
 		int index = count.getAndAdd(1);
@@ -104,14 +115,69 @@ public class CacheTools {
 		sortMap.add(node);
 	}
 	
-	public static final CacheObject getCacheObj(String key){
+	/**
+	 * 获取缓存数据。只要还没有回收，即使超时了也可以获取到。
+	 * @param key
+	 * @return
+	 */
+	public static final CacheObject getCacheObjOrigin(String key){
 		return initGetCacheObj(key);
 	}
 	
-	public static final boolean checkTimeout(String key){
-		return checkTimeout(key, 2 * 3600 * 1000 );
+	/**
+	 * 获取缓存数据。超时了返回null。
+	 * @param key
+	 * @return
+	 */
+	public static final CacheObject getCacheObj(String key){
+		CacheObject tmp = getCacheObjOrigin(key);
+		if(tmp == null){ 
+			return tmp;
+		}
+		long cur = System.currentTimeMillis();
+		if(tmp.getTimeOut() < cur){
+			//超时移除
+			clearCacheObj(key);
+			return null;
+		}
+		return tmp;
 	}
 	
+	/**
+	 * 获取缓存数据。先判断自身是否超时，再判断给定的超时时间。
+	 * @param key
+	 * @param outTime
+	 * @return
+	 */
+	public static final CacheObject getCacheObj(String key, long outTime){
+		CacheObject tmp = getCacheObj(key);
+		if(tmp == null){ 
+			return tmp;
+		}
+		long cur = System.currentTimeMillis();
+		if((tmp.getMillis() + outTime) < cur){
+			//超时移除
+			clearCacheObj(key);
+			return null;
+		}
+		return tmp;
+	}
+	
+	/**
+	 * 检测是否超时。true表示超时。默认超时时间2小时
+	 * @param key
+	 * @return
+	 */
+	public static final boolean checkTimeout(String key){
+		return checkTimeout(key, outTime);
+	}
+	
+	/**
+	 * 检测是否超时。true表示超时。自定义超时时间
+	 * @param key
+	 * @param outTime
+	 * @return
+	 */
 	public static final boolean checkTimeout(String key, long outTime){
 		CacheObject tmp = getCacheObj(key);
 		if(tmp == null){ 
@@ -126,6 +192,10 @@ public class CacheTools {
 		return false;
 	}
 	
+	/**
+	 * 清楚缓存
+	 * @param key
+	 */
 	public static final void clearCacheObj(String key){
 		initClearCacheObj(key);
 	}

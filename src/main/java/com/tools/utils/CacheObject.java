@@ -5,6 +5,7 @@ public class CacheObject {
 	private String key;		//key
 	private long millis;	//缓存时间
 	private Object value;	//value
+	private long timeOut;	//超时时间
 	
 	public CacheObject(String key, Object value) {
 		this.key = key;
@@ -32,6 +33,12 @@ public class CacheObject {
 	}
 	public void setValue(Object value) {
 		this.value = value;
+	}
+	public long getTimeOut() {
+		return timeOut;
+	}
+	public void setTimeOut(long timeOut) {
+		this.timeOut = timeOut;
 	}
 	
 }
