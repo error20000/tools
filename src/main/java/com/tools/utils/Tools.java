@@ -1112,9 +1112,11 @@ public class Tools {
 		Collections.sort(keys);
 		String str = "";
 		for (String key : keys) {
-			String value = (String)data.get(key);
-			if (!isNullOrEmpty(value))
+			Object temp = data.get(key);
+			if (!isNullOrEmpty(temp)){
+				String value = String.valueOf(temp);
 				str += key+value;
+			}
 		}
 		return md5(str + secretKey);
 	}
@@ -1133,9 +1135,11 @@ public class Tools {
 		Collections.sort(keys);
 		String str = "";
 		for (String key : keys) {
-			String value = (String)data.get(key);
-			if (!isNullOrEmpty(value))
+			Object temp = data.get(key);
+			if (!isNullOrEmpty(temp)){
+				String value = String.valueOf(temp);
 				str += separator + key + connector + value;
+			}
 		}
 		str = Tools.isNullOrEmpty(str) ? "" : str.substring(separator.length());
 		return md5(str + secretKey);
