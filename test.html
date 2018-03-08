@@ -1,0 +1,8 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Insert title here</title>
+<link href="https://cdn.bootcss.com/element-ui/2.2.1/theme-chalk/index.css" rel="stylesheet"><script src="https://cdn.bootcss.com/vue/2.5.13/vue.js"></script><script src="https://cdn.bootcss.com/element-ui/2.2.1/index.js"></script></head><body>
+<style type="text/css">#div1 {width:198px; height:66px;padding:10px;border:1px solid #aaaaaa;}</style><script type="text/javascript">  function allowDrop(ev)  {  ev.preventDefault();  ev.dataTransfer.dropEffect = "copy";  console.log(ev.dataTransfer);  }    function drag(ev)  {   ev.dataTransfer.setData("Text",ev.target.id);   ev.dataTransfer.effectAllowed = "copy";   ev.dropEffect = "copy";   console.log(ev.dataTransfer);  }    function drop(ev)  {   ev.preventDefault();   var data=ev.dataTransfer.getData("Text");   ev.target.appendChild(document.getElementById(data));  }</script>
+<p>请把 W3School 的图片拖放到矩形中：</p>
+<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div><br />
+ <div id="app">  <div draggable="true" ondragstart="drag(event)" id="test">      <el-button >Button</el-button>      <el-dialog :visible.sync="visible" title="Hello world">        <p>Try Element</p>      </el-dialog>  </div>   <el-button @click="visible = true">Button</el-button>   </div>
+</body><script>    new Vue({      el: '#app',      data: function() {        return { visible: false }      }    })  </script>
+</html>
